@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "sh proto/build.sh",
-    "server": "ts-node index.ts"
+    "server": "ts-node index.ts",
+    "db-init": "npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +29,7 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
+    "randomstring": "^1.3.0",
     "sequelize": "^6.33.0"
   },
   "jest": {
