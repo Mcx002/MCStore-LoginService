@@ -1,4 +1,4 @@
-import {Metadata, sendUnaryData, ServerErrorResponse, ServerUnaryCall} from "@grpc/grpc-js";
+import {sendUnaryData, ServerErrorResponse, ServerUnaryCall} from "@grpc/grpc-js";
 import {
     createAdminAnonymousToken,
     createCustomerAnonymousToken,
@@ -6,7 +6,6 @@ import {
 } from "../services/anonymous";
 import {AnonymousDto, AuthResultDto, Subject, ValidateTokenDto} from "../../proto_gen/auth_pb";
 import {jwtAdapter} from "../adapter/jwt";
-import {Status} from "@grpc/grpc-js/build/src/constants";
 
 export const createAnonymousCustomerTokenServer = async (call: ServerUnaryCall<AnonymousDto, AuthResultDto>, callback: sendUnaryData<AuthResultDto>) => {
     try {
