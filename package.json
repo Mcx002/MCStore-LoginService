@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "server": "ts-node index.ts",
-    "db-init": "npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
+    "db-init": "npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "db-seed": "npx sequelize-cli db:seed:all",
+    "db-seed-down": "npx sequelize-cli db:seed:undo:all",
+    "db-up": "npx sequelize-cli db:migrate",
+    "db-down": "npx sequelize-cli db:migrate:undo"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +37,13 @@
     "sequelize": "^6.33.0"
   },
   "jest": {
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "collectCoverageFrom": [
+      "<rootDir>/src/**/*.ts",
+      "!<rootDir>/src/repositories/**/*",
+      "!<rootDir>/src/servers/**/*",
+      "!<rootDir>/src/models/**/*",
+      "!<rootDir>/src/adapter/database.ts"
+    ]
   }
 }
