@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.4.0
+- feat(anonymous): Add anonymous user validation
+
 # v0.3.0
 - feat(anonymous): Add create anonymous admin tokenCcc
 
