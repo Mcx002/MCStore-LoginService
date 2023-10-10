@@ -29,6 +29,11 @@ export class Anonymous extends Model implements AnonymousAttributes {
                 allowNull: false,
                 primaryKey: true,
             },
+            xid: {
+                type: DataTypes.STRING(4),
+                allowNull: false,
+                unique: true,
+            },
             username: {
                 type: DataTypes.STRING,
                 allowNull: false,
