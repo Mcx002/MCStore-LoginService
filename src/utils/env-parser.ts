@@ -1,8 +1,10 @@
 import 'dotenv/config'
+import {Status} from "@grpc/grpc-js/build/src/constants";
+import {ErrorHandler} from "../adapter/error";
 
 export function validateDefaultValue<T>(variableName: string, defaultValue: T | undefined): T {
     if (!defaultValue) {
-        throw new Error(`${variableName} is not set yet`)
+        throw new ErrorHandler(Status.INTERNAL, `${variableName} is not set yet`)
     }
 
     return defaultValue

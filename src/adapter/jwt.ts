@@ -3,6 +3,8 @@ import {SignOptions} from 'jsonwebtoken'
 import {appConfig} from "../config";
 import {Subject} from "../../proto_gen/auth_pb";
 import {isAnyStringInArrayB} from "../utils/array";
+import {ErrorHandler} from "./error";
+import {Status} from "@grpc/grpc-js/build/src/constants";
 
 export interface JwtSignInterface extends SignOptions {
     payload: Subject.AsObject
@@ -45,7 +47,7 @@ class JwtAdapter {
         }
 
         if (!isAnyStringInArrayB(requiredAudiences, aud)) {
-            throw new Error("Invalid audience")
+            throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid audience")
         }
     }
 
@@ -53,7 +55,7 @@ class JwtAdapter {
         const data = jwt.verify(token, appConfig.jwtSecretKey) as jwt.JwtPayload
 
         if (data.iss !== appConfig.jwtIssuer) {
-            throw new Error("Invalid token")
+            throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid token")
         }
 
         this.validateAudience(data.aud, audience)
