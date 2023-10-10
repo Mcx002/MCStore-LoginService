@@ -1,7 +1,7 @@
 import {Server} from "@grpc/grpc-js";
 import {AuthService} from "../../proto_gen/auth-svc_grpc_pb";
 import {getHealthServer} from "./common";
-import {createAnonymousCustomerTokenServer} from "./anonymous";
+import {createAnonymousCustomerTokenServer, createAnonymousSellerTokenServer} from "./anonymous";
 
 export class AuthServer extends Server {
     initRoutes(): void {
@@ -10,7 +10,8 @@ export class AuthServer extends Server {
             getHealth: getHealthServer,
 
             // Anonymous
-            createCustomerAnonymousToken: createAnonymousCustomerTokenServer
+            createCustomerAnonymousToken: createAnonymousCustomerTokenServer,
+            createSellerAnonymousToken: createAnonymousSellerTokenServer,
         })
     }
 }
