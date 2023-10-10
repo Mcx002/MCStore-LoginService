@@ -12,6 +12,7 @@ module.exports = {
     const customerAnonymousPasswordEncrypted = createHash('sha256').update(customerAnonymousPassword).digest('hex')
     const customerAnonymous = {
       id: 1,
+      xid: randomstring.generate(4),
       username: randomstring.generate(6),
       password: customerAnonymousPasswordEncrypted,
       level: 1,
@@ -23,6 +24,7 @@ module.exports = {
     const sellerAnonymousPasswordEncrypted = createHash('sha256').update(sellerAnonymousPassword).digest('hex')
     const sellerAnonymous = {
       id: 2,
+      xid: randomstring.generate(4),
       username: randomstring.generate(6),
       password: sellerAnonymousPasswordEncrypted,
       level: 2,
@@ -34,6 +36,7 @@ module.exports = {
     const adminAnonymousPasswordEncrypted = createHash('sha256').update(adminAnonymousPassword).digest('hex')
     const adminAnonymous = {
       id: 3,
+      xid: randomstring.generate(4),
       username: randomstring.generate(6),
       password: adminAnonymousPasswordEncrypted,
       level: 3,
