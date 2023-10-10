@@ -1,14 +1,18 @@
-import {createCustomerAnonymousToken} from "../../src/services/anonymous";
+import {
+    createCustomerAnonymousToken,
+    createSellerAnonymousToken,
+    validateAnonymousUser
+} from "../../src/services/anonymous";
 import {AnonymousAttributes} from "../../src/models/anonymous";
 import {AnonymousLevel} from "../../proto_gen/auth_pb";
 import {createHash} from 'crypto'
 
-describe('Service createCustomerAnonymousToken Test', () => {
+describe('Service validateAnonymousUser Test', () => {
     test('Should throw anonymous is not found', async () => {
         const anonymousRep = require('../../src/repositories/anonymous')
         jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(null)
 
-        expect(async () => await createCustomerAnonymousToken('test', 'test')).rejects.toThrow('anonymous is not found')
+        expect(async () => await validateAnonymousUser('test', 'test', AnonymousLevel.CUSTOMER)).rejects.toThrow('anonymous is not found')
     })
 
     test('Should throw invalid statement because of level', async () => {
@@ -26,7 +30,7 @@ describe('Service createCustomerAnonymousToken Test', () => {
         }
         jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(mockAnonymous)
 
-        expect(async () => await createCustomerAnonymousToken('test', 'test')).rejects.toThrow('invalid statement')
+        expect(async () => await validateAnonymousUser('test', 'test', AnonymousLevel.CUSTOMER)).rejects.toThrow('invalid statement')
     })
 
     test('Should throw invalid statement because of password', async () => {
@@ -45,10 +49,13 @@ describe('Service createCustomerAnonymousToken Test', () => {
         }
         jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(mockAnonymous)
 
-        expect(async () => await createCustomerAnonymousToken('test', 'test')).rejects.toThrow('invalid statement')
+        expect(async () => await validateAnonymousUser('test', 'test', AnonymousLevel.CUSTOMER)).rejects.toThrow('invalid statement')
     })
 
-    test('Should return token', async () => {
+})
+
+describe('Service createAnonymousToken test', () => {
+    test('Should return anonymous customer token', async () => {
         const anonymousRep = require('../../src/repositories/anonymous')
 
         const hashedPassword = createHash('sha256').update('test').digest('hex')
@@ -65,6 +72,26 @@ describe('Service createCustomerAnonymousToken Test', () => {
         jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(mockAnonymous)
 
         const token = await createCustomerAnonymousToken('test', 'test')
+        expect(token !== '').toBe(true)
+    })
+
+    test('Should return anonymous seller token', async () => {
+        const anonymousRep = require('../../src/repositories/anonymous')
+
+        const hashedPassword = createHash('sha256').update('test').digest('hex')
+        const mockAnonymous: AnonymousAttributes = {
+            createdAt: new Date(),
+            id: 1,
+            level: AnonymousLevel.SELLER,
+            password: hashedPassword,
+            updatedAt: new Date(),
+            username: "testusername",
+            version: 1,
+            xid: "txid"
+        }
+        jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(mockAnonymous)
+
+        const token = await createSellerAnonymousToken('test', 'test')
         expect(token !== '').toBe(true)
     })
 })

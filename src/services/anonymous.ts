@@ -3,8 +3,9 @@ import {AnonymousLevel} from "../../proto_gen/auth_pb";
 import {createHash} from 'crypto'
 import {jwtAdapter} from "../adapter/jwt";
 import {appConfig} from "../config";
+import {AnonymousAttributes} from "../models/anonymous";
 
-export const createCustomerAnonymousToken = async (username: string, password: string): Promise<string> => {
+export const validateAnonymousUser = async (username: string, password: string, level: AnonymousLevel): Promise<AnonymousAttributes> => {
     // find anonymous by username
     const anonymous = await findAnonymousByUsername(username)
     if (!anonymous) {
@@ -12,7 +13,7 @@ export const createCustomerAnonymousToken = async (username: string, password: s
     }
 
     // validate level
-    if (anonymous.level !== AnonymousLevel.CUSTOMER) {
+    if (anonymous.level !== level) {
         throw new Error('invalid statement')
     }
 
@@ -22,6 +23,12 @@ export const createCustomerAnonymousToken = async (username: string, password: s
         throw new Error('invalid statement')
     }
 
+    return anonymous
+}
+
+export const createCustomerAnonymousToken = async (username: string, password: string): Promise<string> => {
+    const anonymous = await validateAnonymousUser(username, password, AnonymousLevel.CUSTOMER)
+
     // generate the token
     return jwtAdapter.sign({
         payload: {
@@ -29,6 +36,20 @@ export const createCustomerAnonymousToken = async (username: string, password: s
             name: anonymous.username,
         },
         audience: ['AC'],
+        subject: username,
+    }, appConfig.anonymousTokenExpiredTime)
+}
+
+export const createSellerAnonymousToken = async (username: string, password: string): Promise<string> => {
+    const anonymous = await validateAnonymousUser(username, password, AnonymousLevel.SELLER)
+
+    // generate the token
+    return jwtAdapter.sign({
+        payload: {
+            xid: anonymous.xid,
+            name: anonymous.username,
+        },
+        audience: ['AS'],
         subject: username,
     }, appConfig.anonymousTokenExpiredTime)
 }
