@@ -1,5 +1,5 @@
 import {jwtAdapter, JwtSignInterface} from "../../src/adapter/jwt";
-import {config} from "../../src/config";
+import {appConfig} from "../../src/config";
 import * as jwt from "jsonwebtoken"
 
 describe('Adapter JWT Test', () => {
@@ -16,10 +16,10 @@ describe('Adapter JWT Test', () => {
             keyid: 'keyid1',
             jwtid: 'jwtid1',
         }
-        const token = jwtAdapter.sign(payload, config.anonymousTokenExpiredTime)
+        const token = jwtAdapter.sign(payload, appConfig.anonymousTokenExpiredTime)
 
         // verify token
-        const decoded = jwt.verify(token, config.jwtSecretKey) as jwt.JwtPayload
+        const decoded = jwt.verify(token, appConfig.jwtSecretKey) as jwt.JwtPayload
         expect(decoded.aud).toEqual(payload.audience)
         expect(decoded.sub).toBe(payload.subject)
         expect(decoded.jti).toBe(payload.jwtid)
@@ -39,11 +39,11 @@ describe('Adapter JWT Test', () => {
             keyid: 'keyid1',
             jwtid: 'jwtid1',
         }
-        config.jwtIssuer = 'testIssuer1'
-        const token = jwtAdapter.sign(payload, config.anonymousTokenExpiredTime)
+        appConfig.jwtIssuer = 'testIssuer1'
+        const token = jwtAdapter.sign(payload, appConfig.anonymousTokenExpiredTime)
 
         // verify token
-        config.jwtIssuer = 'testIssuer2'
+        appConfig.jwtIssuer = 'testIssuer2'
         expect(() => jwtAdapter.verify(token, ['test'])).toThrow('Invalid token')
     })
 
@@ -65,7 +65,7 @@ describe('Adapter JWT Test', () => {
             keyid: 'keyid1',
             jwtid: 'jwtid1',
         }
-        const token = jwtAdapter.sign(payload, config.anonymousTokenExpiredTime)
+        const token = jwtAdapter.sign(payload, appConfig.anonymousTokenExpiredTime)
 
         // verify token
         const subject = jwtAdapter.verify(token, ['test'])

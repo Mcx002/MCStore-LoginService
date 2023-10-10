@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken'
 import {SignOptions} from 'jsonwebtoken'
-import {config} from "../config";
+import {appConfig} from "../config";
 import {Subject} from "../../proto_gen/auth_pb";
 import {isAnyStringInArrayB} from "../utils/array";
 
@@ -15,18 +15,26 @@ class JwtAdapter {
      * @param expiresIn - in seconds
      */
     sign(data: JwtSignInterface, expiresIn: number) {
+        const signOptions: SignOptions = {
+            algorithm: 'HS256',
+            expiresIn: `${expiresIn}s`,
+            audience: data.audience,
+            issuer: appConfig.jwtIssuer,
+            subject: data.subject,
+        }
+
+        if (data.keyid) {
+            signOptions.keyid = data.keyid
+        }
+
+        if (data.jwtid) {
+            signOptions.jwtid = data.jwtid
+        }
+
         return jwt.sign(
             data.payload,
-            config.jwtSecretKey,
-            {
-                algorithm: 'HS256',
-                expiresIn: `${expiresIn}s`,
-                audience: data.audience,
-                issuer: config.jwtIssuer,
-                subject: data.subject,
-                keyid: data.keyid,
-                jwtid: data.jwtid,
-            }
+            appConfig.jwtSecretKey,
+            signOptions
         )
     }
 
@@ -42,9 +50,9 @@ class JwtAdapter {
     }
 
     verify(token: string, audience: string[]): Subject.AsObject {
-        const data = jwt.verify(token, config.jwtSecretKey) as jwt.JwtPayload
+        const data = jwt.verify(token, appConfig.jwtSecretKey) as jwt.JwtPayload
 
-        if (data.iss !== config.jwtIssuer) {
+        if (data.iss !== appConfig.jwtIssuer) {
             throw new Error("Invalid token")
         }
 
