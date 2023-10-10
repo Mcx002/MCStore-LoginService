@@ -1,4 +1,5 @@
 import {
+    createAdminAnonymousToken,
     createCustomerAnonymousToken,
     createSellerAnonymousToken,
     validateAnonymousUser
@@ -92,6 +93,26 @@ describe('Service createAnonymousToken test', () => {
         jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(mockAnonymous)
 
         const token = await createSellerAnonymousToken('test', 'test')
+        expect(token !== '').toBe(true)
+    })
+
+    test('Should return anonymous admin token', async () => {
+        const anonymousRep = require('../../src/repositories/anonymous')
+
+        const hashedPassword = createHash('sha256').update('test').digest('hex')
+        const mockAnonymous: AnonymousAttributes = {
+            createdAt: new Date(),
+            id: 1,
+            level: AnonymousLevel.ADMIN,
+            password: hashedPassword,
+            updatedAt: new Date(),
+            username: "testusername",
+            version: 1,
+            xid: "txid"
+        }
+        jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(mockAnonymous)
+
+        const token = await createAdminAnonymousToken('test', 'test')
         expect(token !== '').toBe(true)
     })
 })

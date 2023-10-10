@@ -53,3 +53,17 @@ export const createSellerAnonymousToken = async (username: string, password: str
         subject: username,
     }, appConfig.anonymousTokenExpiredTime)
 }
+
+export const createAdminAnonymousToken = async (username: string, password: string): Promise<string> => {
+    const anonymous = await validateAnonymousUser(username, password, AnonymousLevel.ADMIN)
+
+    // generate the token
+    return jwtAdapter.sign({
+        payload: {
+            xid: anonymous.xid,
+            name: anonymous.username,
+        },
+        audience: ['AA'],
+        subject: username,
+    }, appConfig.anonymousTokenExpiredTime)
+}
