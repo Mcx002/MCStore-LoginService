@@ -4,7 +4,7 @@ import {getHealthServer} from "./common";
 import {
     createAnonymousAdminTokenServer,
     createAnonymousCustomerTokenServer,
-    createAnonymousSellerTokenServer
+    createAnonymousSellerTokenServer, validateAnonymousTokenServer
 } from "./anonymous";
 
 export class AuthServer extends Server {
@@ -17,6 +17,7 @@ export class AuthServer extends Server {
             createCustomerAnonymousToken: createAnonymousCustomerTokenServer,
             createSellerAnonymousToken: createAnonymousSellerTokenServer,
             createAdminAnonymousToken: createAnonymousAdminTokenServer,
+            validateAnonymousToken: validateAnonymousTokenServer,
         })
     }
 }
