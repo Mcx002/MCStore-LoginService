@@ -1,4 +1,12 @@
-import {getEnvNumber, getEnvString, validateDefaultValue} from "../../src/utils/env-parser";
+import {
+    getEnvNumber,
+    getEnvPath,
+    getEnvString,
+    isNodeEnvTest,
+    loadEnvFile,
+    validateDefaultValue
+} from "../../../src/utils/env-parser";
+import dotenv from "dotenv";
 
 describe('Utils Env Parser Test', () => {
     test('getEnvNumber() Should return default value', () => {
@@ -42,5 +50,29 @@ describe('Utils Env Parser Test', () => {
         const variableName = 'TEST3'
         const data = validateDefaultValue(variableName, 'test')
         expect(data).toBe('test')
+    })
+
+    test('Should return service name TestAuthService', () => {
+        loadEnvFile()
+        const serviceName = getEnvString("SERVICE_NAME")
+        expect(serviceName).toBe('TestAuthService')
+    })
+
+    test('Should return service name AuthService', () => {
+        delete process.env.SERVICE_NAME
+        dotenv.config()
+        const serviceName = getEnvString("SERVICE_NAME")
+        expect(serviceName).toBe('AuthService')
+    })
+
+    test("Should return .env", () => {
+        const path = getEnvPath(false)
+        expect(path).toBe(".env")
+    })
+
+    test("Should return .env.test", () => {
+        process.env.NODE_ENV = 'test'
+        const path = getEnvPath(true)
+        expect(path).toBe(".env.test")
     })
 })
