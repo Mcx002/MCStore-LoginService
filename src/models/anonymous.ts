@@ -9,7 +9,6 @@ export interface AnonymousAttributes {
     level: AnonymousLevel
     createdAt: Date
     updatedAt: Date
-    version: number
 }
 
 export class Anonymous extends Model implements AnonymousAttributes {
@@ -20,7 +19,6 @@ export class Anonymous extends Model implements AnonymousAttributes {
     level!: AnonymousLevel
     createdAt!: Date
     updatedAt!: Date
-    version!: number
 
     static initModel(sequelize: Sequelize): void {
         Anonymous.init({
@@ -56,7 +54,7 @@ export class Anonymous extends Model implements AnonymousAttributes {
             }
         }, {
             sequelize,
-            modelName: 'Anonymous'
+            tableName: 'Anonymous'
         })
     }
 }
