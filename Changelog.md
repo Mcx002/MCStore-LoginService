@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.5.0
+- feat(customer): Add register customer auth
+
 # v0.4.0
 - feat(anonymous): Add anonymous user validation
 
