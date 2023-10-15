@@ -2,9 +2,10 @@ import {Dialect, Sequelize} from "sequelize";
 import {appConfig} from "../config";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {ErrorHandler} from "./error";
+import {logger} from "../logger";
 
 export interface DatabaseAdapter<Instance> {
-    connect(): Promise<void>;
+    connect(): Promise<boolean>;
     getInstance(): Instance
 }
 
@@ -19,12 +20,14 @@ export class SequelizeAdapter implements DatabaseAdapter<Sequelize> {
         })
     }
 
-    async connect() {
+    async connect(): Promise<boolean> {
         try {
             await this.sequelize.authenticate()
-            console.log('Connection has been established successfully')
+            logger.info('Connection has been established successfully')
+
+            return true
         } catch (e) {
-            console.error(e)
+            logger.error(e)
             throw new ErrorHandler(Status.INTERNAL, 'Unable to connect to the database')
         }
     }
