@@ -5,8 +5,12 @@ import {serverLifetime} from "./src/utils/server";
 import {appConfig} from "./src/config";
 import {AuthServer} from "./src/servers";
 import {DatabaseModels} from "./src/models";
+import {loadEnvFile} from "./src/utils/env-parser";
+import { logger } from "./src/logger";
 
 async function boot() {
+    loadEnvFile()
+
     const port = appConfig.port || 3000
     const uri = `localhost:${port}`
 
@@ -20,10 +24,10 @@ async function boot() {
         authServer.start()
 
         serverLifetime.setStartTime(new Date().getTime())
-        console.log(`Listening on ${uri}`)
+        logger.info(`Listening on ${uri}`)
     })
 }
 
 boot().catch((error) => {
-    console.error(error)
+    logger.error(error)
 })

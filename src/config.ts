@@ -1,4 +1,7 @@
-import {getEnvNumber, getEnvString} from "./utils/env-parser";
+import {getEnvNumber, getEnvString, loadEnvFile} from "./utils/env-parser";
+import winston from "winston";
+
+loadEnvFile()
 
 export const appConfig = {
     // Server Configuration
@@ -20,4 +23,7 @@ export const appConfig = {
     dbName: getEnvString("DB_NAME", "mcstore-auth"),
     dbHost: getEnvString("DB_HOST", "localhost"),
     dbPort: getEnvNumber("DB_PORT", 5432),
+
+    // Logger
+    loggerLevel: getEnvString('LOGGER_LEVEL', "error"),
 }
