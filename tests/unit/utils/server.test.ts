@@ -1,4 +1,4 @@
-import {serverLifetime} from "../../src/utils/server";
+import {serverLifetime} from "../../../src/utils/server";
 
 describe('Utils Server Test', () => {
     test('serverLifetime test', () => {

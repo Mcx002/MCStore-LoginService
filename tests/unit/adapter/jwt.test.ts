@@ -1,5 +1,5 @@
-import {jwtAdapter, JwtSignInterface} from "../../src/adapter/jwt";
-import {appConfig} from "../../src/config";
+import {jwtAdapter, JwtSignInterface} from "../../../src/adapter/jwt";
+import {appConfig} from "../../../src/config";
 import * as jwt from "jsonwebtoken"
 
 describe('Adapter JWT Test', () => {
