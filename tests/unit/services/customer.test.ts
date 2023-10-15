@@ -1,5 +1,5 @@
 import {CustomerAuthDto} from "../../../proto_gen/customer-auth_pb";
-import {registerCustomerAuth} from "../../../src/services/customer";
+import {isCustomerEmailExists, registerCustomerAuth} from "../../../src/services/customer";
 import {CustomerAuthAttributes} from "../../../src/models/customer-auth";
 
 describe('Service registerCustomerAuth Test', () => {
@@ -23,5 +23,21 @@ describe('Service registerCustomerAuth Test', () => {
 
         const customerAuthDto = await registerCustomerAuth(payload)
         expect(customerAuthDto.getEmail()).toBe(customerAuthMock.email)
+    })
+
+    test('Should return email is exists true', async () => {
+        const customerRep = require('../../../src/repositories/customer')
+        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
+
+        const isEmailExists = await isCustomerEmailExists('test@email.com')
+        expect(isEmailExists).toBe(true)
+    })
+
+    test('Should return email is exists false', async () => {
+        const customerRep = require('../../../src/repositories/customer')
+        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue(null)
+
+        const isEmailExists = await isCustomerEmailExists('test@email.com')
+        expect(isEmailExists).toBe(false)
     })
 })

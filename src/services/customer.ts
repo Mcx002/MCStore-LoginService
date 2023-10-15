@@ -3,7 +3,7 @@ import {CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/
 import {ErrorHandler} from "../adapter/error";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {createBaseAttributes} from "../models";
-import {insertCustomerAuth} from "../repositories/customer";
+import {findCustomerByEmail, insertCustomerAuth} from "../repositories/customer";
 import {getUnixFromDate} from "../utils/time";
 
 export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
@@ -23,6 +23,12 @@ export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
     const customerAuth = await insertCustomerAuth(newCustomerAuthData)
 
     return composeCustomerAuthDto(customerAuth)
+}
+
+export const isCustomerEmailExists = async (email: string) => {
+    const customerAuth = await findCustomerByEmail(email)
+
+    return !!customerAuth
 }
 
 export const composeCustomerAuthDto = (payload: CustomerAuthAttributes): CustomerAuthDto => {
