@@ -1,4 +1,4 @@
-import {checkOptionsName} from "../../src/adapter/error";
+import {checkOptionsName} from "../../../src/adapter/error";
 
 describe('Adapter Error Test', () => {
     test('Should return Internal Error', async () => {
