@@ -1,6 +1,16 @@
-import 'dotenv/config'
+import dotenv from 'dotenv'
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {ErrorHandler} from "../adapter/error";
+
+export const isNodeEnvTest = process.env.NODE_ENV === 'test'
+
+export const getEnvPath = (isTest: boolean) => {
+    return `.env${isTest ? '.test' : ''}`
+}
+
+export const loadEnvFile = () => {
+    dotenv.config({ path: getEnvPath(isNodeEnvTest) })
+}
 
 export function validateDefaultValue<T>(variableName: string, defaultValue: T | undefined): T {
     if (!defaultValue) {
