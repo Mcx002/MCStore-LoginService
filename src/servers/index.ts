@@ -6,6 +6,7 @@ import {
     createAnonymousCustomerTokenServer,
     createAnonymousSellerTokenServer, validateAnonymousTokenServer
 } from "./anonymous";
+import {registerCustomerAuthServer} from "./customer";
 
 export class AuthServer extends Server {
     initRoutes(): void {
@@ -18,6 +19,9 @@ export class AuthServer extends Server {
             createSellerAnonymousToken: createAnonymousSellerTokenServer,
             createAdminAnonymousToken: createAnonymousAdminTokenServer,
             validateAnonymousToken: validateAnonymousTokenServer,
+
+            // customer
+            registerCustomerAuth: registerCustomerAuthServer,
         })
     }
 }
