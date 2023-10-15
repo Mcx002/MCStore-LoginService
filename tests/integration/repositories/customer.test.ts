@@ -1,5 +1,5 @@
 import {CustomerAuth, CustomerAuthCreationAttributes} from "../../../src/models/customer-auth";
-import {insertCustomerAuth} from "../../../src/repositories/customer";
+import {findCustomerByEmail, insertCustomerAuth} from "../../../src/repositories/customer";
 import {DatabaseModels} from "../../../src/models";
 
 describe('Repository CustomerAuth Test', () => {
@@ -28,6 +28,24 @@ describe('Repository CustomerAuth Test', () => {
        const customerAuth = await insertCustomerAuth(newCustomerAuthData)
 
         expect(customerAuth.email).toBe(newCustomerAuthData.email)
+
+        await CustomerAuth.truncate()
+    })
+
+    test('Should return CustomerAuth by Email', async () => {
+        // prepare customer auth creation attributes
+        const newCustomerAuthData: CustomerAuthCreationAttributes = {
+            email: 'newEmail@test.com',
+            password: 'test',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            version: 1,
+            userId: 1,
+        }
+        await CustomerAuth.create(newCustomerAuthData)
+
+        const customerAuth = await findCustomerByEmail('newEmail@test.com')
+        expect(customerAuth?.email).toBe(newCustomerAuthData.email)
 
         await CustomerAuth.truncate()
     })
