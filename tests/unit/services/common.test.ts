@@ -1,5 +1,5 @@
-import { appConfig } from "../../src/config";
-import {getHealthService} from "../../src/services/common";
+import { appConfig } from "../../../src/config";
+import {getHealthService} from "../../../src/services/common";
 
 describe('Service Common Test', () => {
     test('getHealthService Test', () => {
