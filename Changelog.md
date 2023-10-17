@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.7.0
+- feat(customer-auth): Add validate customer account
+
 # v0.6.0
 - feat(customer-auth): Add is customer email exists 
 
