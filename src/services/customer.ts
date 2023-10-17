@@ -13,10 +13,12 @@ export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "Password required")
     }
 
+    const hashedPassword = createHash('sha256').update(password).digest('hex')
+
     // prepare customer auth creation attributes
     const newCustomerAuthData: CustomerAuthCreationAttributes = {
         email: payload.getEmail(),
-        password: password,
+        password: hashedPassword,
         userId: payload.getUserId(),
         ...createBaseAttributes(),
     }
