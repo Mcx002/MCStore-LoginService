@@ -13,7 +13,7 @@ export interface JwtSignInterface extends SignOptions {
 class JwtAdapter {
     /**
      * Sign Guide
-     * @param payload - any
+     * @param data - any
      * @param expiresIn - in seconds
      */
     sign(data: JwtSignInterface, expiresIn: number) {
