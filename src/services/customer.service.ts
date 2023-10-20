@@ -3,7 +3,7 @@ import {CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/
 import {ErrorHandler} from "../adapter/error";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {createBaseAttributes} from "../models";
-import {findCustomerByEmail, insertCustomerAuth} from "../repositories/customer";
+import {findCustomerByEmail, insertCustomerAuth, updateCustomerAuth} from "../repositories/customer.reposiitory";
 import {getUnixFromDate} from "../utils/time";
 import {createHash} from "crypto";
 import {mailTransporter} from "../adapter/mail-transporter";
@@ -16,6 +16,7 @@ import {
 } from "../repositories/session.repository";
 import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose} from "../models/attempt-session.model";
 import {jwtAdapter} from "../adapter/jwt";
+import {logger} from "../logger";
 
 export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
     const password = payload.getPassword()
@@ -30,6 +31,7 @@ export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
         email: payload.getEmail(),
         password: hashedPassword,
         userId: payload.getUserId(),
+        verified: false,
         ...createBaseAttributes(),
     }
 
@@ -126,5 +128,33 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string)
         to: email,
         html: emailVerificationTemplate(token)
     })
+    return true
+}
+
+export const validateCustomerEmailVerification = async (token: string) => {
+    // retrieve token payload
+    const tokenDecoded = jwtAdapter.verify(token, ['EmailVerification'])
+    const email = tokenDecoded['email']
+    if (!email || email === '') {
+        throw new ErrorHandler(Status.INVALID_ARGUMENT, "email not found")
+    }
+
+    // check is email registered
+    const customerAuth = await findCustomerByEmail(email)
+    if (!customerAuth) {
+        throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
+    }
+
+    // update email verification
+    const updatedValue: Partial<CustomerAuthAttributes> = {
+        version: customerAuth.version + 1,
+        updatedAt: new Date(),
+        verified: true,
+    }
+    const result = await updateCustomerAuth(customerAuth.id, customerAuth.version, updatedValue)
+    if (result === 0) {
+        logger.info('no rows updated')
+    }
+
     return true
 }
