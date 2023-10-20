@@ -51,7 +51,7 @@ class JwtAdapter {
         }
     }
 
-    verify(token: string, audience: string[]): Subject.AsObject {
+    verify(token: string, audience: string[]): jwt.JwtPayload {
         const data = jwt.verify(token, appConfig.jwtSecretKey) as jwt.JwtPayload
 
         if (data.iss !== appConfig.jwtIssuer) {
@@ -60,11 +60,7 @@ class JwtAdapter {
 
         this.validateAudience(data.aud, audience)
 
-        return {
-            xid: data['xid'],
-            name: data['name'],
-            photoProfile: data['photoProfile'],
-        }
+        return data
     }
 }
 
