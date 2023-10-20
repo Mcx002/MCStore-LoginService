@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.9.0
+- feat(customer-auth): Add validate customer email verification
+
 # v0.8.0
 - feat(customer-auth): Add send email verification mail
 
