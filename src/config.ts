@@ -1,5 +1,4 @@
-import {getEnvNumber, getEnvString, loadEnvFile} from "./utils/env-parser";
-import winston from "winston";
+import {getEnvBoolean, getEnvNumber, getEnvString, loadEnvFile} from "./utils/env-parser";
 
 loadEnvFile()
 
@@ -26,4 +25,17 @@ export const appConfig = {
 
     // Logger
     loggerLevel: getEnvString('LOGGER_LEVEL', "error"),
+
+    // mail
+    mailHost: getEnvString('MAIL_HOST'),
+    mailPort: getEnvNumber('MAIL_PORT'),
+    mailSecure: getEnvBoolean('MAIL_SECURE'),
+    mailUsername: getEnvString('MAIL_USERNAME'),
+    mailPassword: getEnvString('MAIL_PASSWORD'),
+
+    // Throttling
+    emailVerificationThrottlingTime: getEnvNumber("EMAIL_VERIFICATION_THROTTLING_TIME", 60),
+
+    // Email Verification
+    emailVerificationCallbackUrl: getEnvString("EMAIL_VERIFICATION_CALLBACK_URL")
 }
