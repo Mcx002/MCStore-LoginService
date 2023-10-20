@@ -9,3 +9,11 @@ export const findCustomerByEmail = async (email: string): Promise<CustomerAuthAt
         where: { email }
     })
 }
+
+export const updateCustomerAuth = async (id: number, version: number, updatedValue: Partial<CustomerAuthAttributes>) => {
+    const [affectedRows] = await CustomerAuth.update(updatedValue, {
+        where: {id, version}
+    })
+
+    return affectedRows
+}
