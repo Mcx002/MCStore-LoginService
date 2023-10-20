@@ -1,7 +1,13 @@
 import {CustomerAuthDto} from "../../../proto_gen/customer-auth_pb";
-import {isCustomerEmailExists, registerCustomerAuth, validateCustomerAccount} from "../../../src/services/customer";
+import {
+    isCustomerEmailExists,
+    registerCustomerAuth,
+    sendEmailVerificationMail,
+    validateCustomerAccount
+} from "../../../src/services/customer.service";
 import {CustomerAuthAttributes} from "../../../src/models/customer-auth";
 import {createHash} from 'crypto';
+import {AttemptSessionAttributes, AttemptSessionPurpose} from "../../../src/models/attempt-session.model";
 
 describe('Service registerCustomerAuth Test', () => {
     test('Should throw Password required', async () => {
@@ -16,7 +22,13 @@ describe('Service registerCustomerAuth Test', () => {
 
         // create customer auth attributes mock
         const customerAuthMock: CustomerAuthAttributes = {
-            createdAt: new Date(), email: "email@test.com", id: 1, password: "test", updatedAt: new Date(), userId: 1, version: 1
+            createdAt: new Date(),
+            email: "email@test.com",
+            id: 1,
+            password: "test",
+            updatedAt: new Date(),
+            userId: 1,
+            version: 1
         }
 
         const customerRep = require('../../../src/repositories/customer')
@@ -81,6 +93,72 @@ describe('Service validateCustomerAccount Test', () => {
         customerAuthDto.setPassword(password)
 
         const result = await validateCustomerAccount(customerAuthDto)
+        expect(result).toBe(true)
+    })
+})
+
+describe('Service sendEmailVerificationMail Test', () => {
+    test('Should throw no email found', async () => {
+        const deviceId = 'deviceIdTest'
+        const email = 'email@test.com'
+
+        const customerRep = require('../../../src/repositories/customer')
+        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue(null)
+
+        expect(async () => sendEmailVerificationMail(deviceId, email)).rejects.toThrow('no email found')
+    })
+    test('Should aborted by throttling', async () => {
+        const deviceId = 'deviceIdTest'
+        const email = 'email@test.com'
+
+        const mockAttemptSession: AttemptSessionAttributes = {
+            id: 1,
+            attempt: 3,
+            createdAt: new Date(),
+            deviceId: deviceId,
+            lastAttempt: new Date(),
+            purpose: AttemptSessionPurpose.EmailVerification,
+            updatedAt: new Date(),
+            version: 1
+
+        }
+
+        const customerRep = require('../../../src/repositories/customer')
+        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
+
+        const sessionRep = require('../../../src/repositories/session.repository')
+        jest.spyOn(sessionRep, "findAttemptSessionByDeviceIdAndPurpose").mockReturnValue(null)
+        jest.spyOn(sessionRep, "insertAttemptSession").mockReturnValue(mockAttemptSession)
+
+        expect(async () => sendEmailVerificationMail(deviceId, email)).rejects.toThrow("attempted 3 times, wait for a while")
+    })
+
+    test('Should return true', async () => {
+        const deviceId = 'deviceIdTest'
+        const email = 'email@test.com'
+
+        const mockAttemptSession: AttemptSessionAttributes = {
+            id: 1,
+            attempt: 1,
+            createdAt: new Date(),
+            deviceId: deviceId,
+            lastAttempt: new Date(),
+            purpose: AttemptSessionPurpose.EmailVerification,
+            updatedAt: new Date(),
+            version: 1
+        }
+
+        const customerRep = require('../../../src/repositories/customer')
+        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
+
+        const sessionRep = require('../../../src/repositories/session.repository')
+        jest.spyOn(sessionRep, "findAttemptSessionByDeviceIdAndPurpose").mockReturnValue(mockAttemptSession)
+        jest.spyOn(sessionRep, "updateAttemptSessionByDeviceIdAndPurpose").mockReturnValue(1)
+
+        const mailTransporter = require('../../../src/adapter/mail-transporter')
+        jest.spyOn(mailTransporter.mailTransporter, "sendMail").mockReturnValue(true)
+
+        const result = await sendEmailVerificationMail(deviceId, email)
         expect(result).toBe(true)
     })
 })
