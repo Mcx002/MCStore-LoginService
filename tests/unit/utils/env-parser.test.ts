@@ -1,8 +1,8 @@
 import {
+    getEnvBoolean,
     getEnvNumber,
     getEnvPath,
     getEnvString,
-    isNodeEnvTest,
     loadEnvFile,
     validateDefaultValue
 } from "../../../src/utils/env-parser";
@@ -74,5 +74,38 @@ describe('Utils Env Parser Test', () => {
         process.env.NODE_ENV = 'test'
         const path = getEnvPath(true)
         expect(path).toBe(".env.test")
+    })
+
+    test("Should getEnvBoolean return true with value string", () => {
+        process.env.BOOL_ENV = 'true'
+        const boolEnv = getEnvBoolean('BOOL_ENV')
+        expect(boolEnv).toBe(true)
+    })
+
+    test("Should getEnvBoolean return true with value 1", () => {
+        process.env.BOOL_ENV = '1'
+        const boolEnv = getEnvBoolean('BOOL_ENV')
+        expect(boolEnv).toBe(true)
+    })
+
+    test("Should getEnvBoolean return false with value string", () => {
+        process.env.BOOL_ENV = 'false'
+        const boolEnv = getEnvBoolean('BOOL_ENV')
+        expect(boolEnv).toBe(false)
+    })
+
+    test("Should getEnvBoolean return false with value 0", () => {
+        process.env.BOOL_ENV = '0'
+        const boolEnv = getEnvBoolean('BOOL_ENV')
+        expect(boolEnv).toBe(false)
+    })
+
+    test("Should getEnvBoolean return defaultValue", () => {
+        const boolEnv = getEnvBoolean('BOOL_ENV_DEFAULT', true)
+        expect(boolEnv).toBe(true)
+    })
+
+    test("Should getEnvBoolean throw error", () => {
+        expect(() => getEnvBoolean('BOOL_ENV_NONE')).toThrow('BOOL_ENV_NONE is not set yet')
     })
 })

@@ -45,3 +45,23 @@ export const getEnvString = (variableName: string, defaultValue: string | undefi
     // throw error if data doesn't exist and default value not set
     return validateDefaultValue(variableName, defaultValue)
 }
+
+export const getEnvBoolean = (variableName: string, defaultValue: boolean | undefined = undefined): boolean => {
+    const data = process.env[variableName]
+
+    if (data && data.toLowerCase() === 'true') {
+        return true
+    }
+    if (data && data.toLowerCase() === 'false') {
+        return false
+    }
+
+    if (data && data === '1') {
+        return true
+    }
+    if (data && data === '0') {
+        return false
+    }
+
+    return validateDefaultValue(variableName, defaultValue)
+}
