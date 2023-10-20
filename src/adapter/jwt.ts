@@ -7,7 +7,7 @@ import {ErrorHandler} from "./error";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 
 export interface JwtSignInterface extends SignOptions {
-    payload: Subject.AsObject
+    payload: {[k: string]: string}
 }
 
 class JwtAdapter {
