@@ -10,8 +10,8 @@ import {
     isCustomerEmailExistsServer,
     registerCustomerAuthServer,
     sendEmailVerificationMailServer,
-    validateCustomerAccountServer
-} from "./customer";
+    validateCustomerAccountServer, validateCustomerEmailVerificationServer
+} from "./customer.server";
 
 export class AuthServer extends Server {
     initRoutes(): void {
@@ -30,6 +30,7 @@ export class AuthServer extends Server {
             isCustomerEmailExists: isCustomerEmailExistsServer,
             validateCustomerAccount: validateCustomerAccountServer,
             sendEmailVerificationMail: sendEmailVerificationMailServer,
+            validateCustomerEmailVerification: validateCustomerEmailVerificationServer,
         })
     }
 }

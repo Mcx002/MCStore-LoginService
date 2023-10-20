@@ -6,6 +6,7 @@ export interface CustomerAuthAttributes extends BaseAttributes {
     userId: number
     email: string
     password: string
+    verified: boolean
 }
 
 export type CustomerAuthCreationAttributes = Optional<CustomerAuthAttributes, "id">
@@ -18,6 +19,7 @@ export class CustomerAuth extends Model implements CustomerAuthAttributes {
     updatedAt!: Date
     userId!: number
     version!: number
+    verified!: boolean
 
     static initModel(sequelize: Sequelize): void {
         CustomerAuth.init({
@@ -51,6 +53,11 @@ export class CustomerAuth extends Model implements CustomerAuthAttributes {
             version: {
                 type: DataTypes.SMALLINT,
                 allowNull: false
+            },
+            verified: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
             }
         }, {
             sequelize,
