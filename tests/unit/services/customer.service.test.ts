@@ -5,7 +5,7 @@ import {
     sendEmailVerificationMail,
     validateCustomerAccount, validateCustomerEmailVerification
 } from "../../../src/services/customer.service";
-import {CustomerAuthAttributes} from "../../../src/models/customer-auth";
+import {CustomerAuthAttributes} from "../../../src/models/customer-auth.model";
 import {createHash} from 'crypto';
 import {AttemptSessionAttributes, AttemptSessionPurpose} from "../../../src/models/attempt-session.model";
 
@@ -32,7 +32,7 @@ describe('Service registerCustomerAuth Test', () => {
             verified: false,
         }
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'insertCustomerAuth').mockReturnValue(customerAuthMock)
 
         const customerAuthDto = await registerCustomerAuth(payload)
@@ -40,7 +40,7 @@ describe('Service registerCustomerAuth Test', () => {
     })
 
     test('Should return email is exists true', async () => {
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
 
         const isEmailExists = await isCustomerEmailExists('test@email.com')
@@ -48,7 +48,7 @@ describe('Service registerCustomerAuth Test', () => {
     })
 
     test('Should return email is exists false', async () => {
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue(null)
 
         const isEmailExists = await isCustomerEmailExists('test@email.com')
@@ -59,21 +59,21 @@ describe('Service registerCustomerAuth Test', () => {
 
 describe('Service validateCustomerAccount Test', () => {
     test('Should throw customer auth not found error', async () => {
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue(null)
 
         expect(async () => validateCustomerAccount(new CustomerAuthDto())).rejects.toThrow("customer auth not found")
     })
 
     test('Should throw password required', async () => {
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
 
         expect(async () => validateCustomerAccount(new CustomerAuthDto())).rejects.toThrow("password required")
     })
 
     test('Should throw auth invalid', async () => {
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
 
         const customerAuthDto = new CustomerAuthDto()
@@ -85,7 +85,7 @@ describe('Service validateCustomerAccount Test', () => {
     test('Should return true', async () => {
         const password = 'test'
         const hashedPassword = createHash('sha256').update(password).digest('hex')
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({
             password: hashedPassword
         })
@@ -103,7 +103,7 @@ describe('Service sendEmailVerificationMail Test', () => {
         const deviceId = 'deviceIdTest'
         const email = 'email@test.com'
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue(null)
 
         expect(async () => sendEmailVerificationMail(deviceId, email)).rejects.toThrow('no email found')
@@ -124,7 +124,7 @@ describe('Service sendEmailVerificationMail Test', () => {
 
         }
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
 
         const sessionRep = require('../../../src/repositories/session.repository')
@@ -149,14 +149,14 @@ describe('Service sendEmailVerificationMail Test', () => {
             version: 1
         }
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
 
         const sessionRep = require('../../../src/repositories/session.repository')
         jest.spyOn(sessionRep, "findAttemptSessionByDeviceIdAndPurpose").mockReturnValue(mockAttemptSession)
         jest.spyOn(sessionRep, "updateAttemptSessionByDeviceIdAndPurpose").mockReturnValue(1)
 
-        const mailTransporter = require('../../../src/adapter/mail-transporter')
+        const mailTransporter = require('../../../src/adapter/mail-transporter.adapter')
         jest.spyOn(mailTransporter.mailTransporter, "sendMail").mockReturnValue(true)
 
         const result = await sendEmailVerificationMail(deviceId, email)
@@ -166,27 +166,27 @@ describe('Service sendEmailVerificationMail Test', () => {
 
 describe('Service validateCustomerEmailVerification Test', () => {
     test('Should throw email not found', () => {
-        const {jwtAdapter} = require('../../../src/adapter/jwt')
+        const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({})
 
         expect(() => validateCustomerEmailVerification('')).rejects.toThrow('email not found')
     })
 
     test('Should throw no email found', async () => {
-        const {jwtAdapter} = require('../../../src/adapter/jwt')
+        const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com'})
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue(null)
 
         expect(() => validateCustomerEmailVerification('')).rejects.toThrow('no email found')
     })
 
     test('Should return true', async () => {
-        const {jwtAdapter} = require('../../../src/adapter/jwt')
+        const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com'})
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
         jest.spyOn(customerRep, "updateCustomerAuth").mockReturnValue(1)
 
@@ -195,10 +195,10 @@ describe('Service validateCustomerEmailVerification Test', () => {
     })
 
     test('Should return true with logger no rows updated', async () => {
-        const {jwtAdapter} = require('../../../src/adapter/jwt')
+        const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com'})
 
-        const customerRep = require('../../../src/repositories/customer.reposiitory')
+        const customerRep = require('../../../src/repositories/customer.repository')
         jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
         jest.spyOn(customerRep, "updateCustomerAuth").mockReturnValue(0)
 

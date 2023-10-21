@@ -1,7 +1,7 @@
 import {Dialect, Sequelize} from "sequelize";
 import {appConfig} from "../config";
 import {Status} from "@grpc/grpc-js/build/src/constants";
-import {ErrorHandler} from "./error";
+import {ErrorHandler} from "./error.adapter";
 import {logger} from "../logger";
 
 export interface DatabaseAdapter<Instance> {

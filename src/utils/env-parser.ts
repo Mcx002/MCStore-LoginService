@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import {Status} from "@grpc/grpc-js/build/src/constants";
-import {ErrorHandler} from "../adapter/error";
+import {ErrorHandler} from "../adapter/error.adapter";
 
 export const isNodeEnvTest = process.env.NODE_ENV === 'test'
 

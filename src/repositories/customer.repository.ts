@@ -1,4 +1,4 @@
-import {CustomerAuth, CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/customer-auth";
+import {CustomerAuth, CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/customer-auth.model";
 
 export const insertCustomerAuth = async (payload: CustomerAuthCreationAttributes): Promise<CustomerAuthAttributes> => {
     return CustomerAuth.create(payload)

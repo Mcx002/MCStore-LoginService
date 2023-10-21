@@ -1,11 +1,11 @@
 import {Server} from "@grpc/grpc-js";
 import {AuthService} from "../../proto_gen/auth-svc_grpc_pb";
-import {getHealthServer} from "./common";
+import {getHealthServer} from "./common.server";
 import {
     createAnonymousAdminTokenServer,
     createAnonymousCustomerTokenServer,
     createAnonymousSellerTokenServer, validateAnonymousTokenServer
-} from "./anonymous";
+} from "./anonymous.server";
 import {
     isCustomerEmailExistsServer,
     registerCustomerAuthServer,
@@ -19,7 +19,7 @@ export class AuthServer extends Server {
         this.addService(AuthService, {
             getHealth: getHealthServer,
 
-            // Anonymous
+            // AnonymousModel
             createCustomerAnonymousToken: createAnonymousCustomerTokenServer,
             createSellerAnonymousToken: createAnonymousSellerTokenServer,
             createAdminAnonymousToken: createAnonymousAdminTokenServer,

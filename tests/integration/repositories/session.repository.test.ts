@@ -11,7 +11,7 @@ import {
     AttemptSessionPurpose
 } from "../../../src/models/attempt-session.model";
 
-describe('Repository CustomerAuth Test', () => {
+describe('Repository CustomerAuthModel Test', () => {
     let dbModel: DatabaseModels | null = null
     beforeAll(async () => {
         dbModel = new DatabaseModels()

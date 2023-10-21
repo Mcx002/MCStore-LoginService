@@ -1,7 +1,7 @@
 import {Sequelize} from "sequelize";
-import {DatabaseAdapter, SequelizeAdapter} from "../adapter/database";
-import {Anonymous} from "./anonymous";
-import {CustomerAuth} from "./customer-auth";
+import {DatabaseAdapter, SequelizeAdapter} from "../adapter/database.adapter";
+import {Anonymous} from "./anonymous.model";
+import {CustomerAuth} from "./customer-auth.model";
 import {AttemptSession} from "./attempt-session.model";
 
 export class DatabaseModels {

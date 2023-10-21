@@ -3,9 +3,9 @@ import {
     createAdminAnonymousToken,
     createCustomerAnonymousToken,
     createSellerAnonymousToken,
-} from "../services/anonymous";
+} from "../services/anonymous.service";
 import {AnonymousDto, AuthResultDto, Subject, ValidateTokenDto} from "../../proto_gen/auth_pb";
-import {jwtAdapter} from "../adapter/jwt";
+import {jwtAdapter} from "../adapter/jwt.adapter";
 
 export const createAnonymousCustomerTokenServer = async (call: ServerUnaryCall<AnonymousDto, AuthResultDto>, callback: sendUnaryData<AuthResultDto>) => {
     try {

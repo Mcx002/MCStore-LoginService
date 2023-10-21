@@ -1,4 +1,4 @@
-import {SequelizeAdapter} from "../../../src/adapter/database";
+import {SequelizeAdapter} from "../../../src/adapter/database.adapter";
 import {appConfig} from "../../../src/config";
 
 describe('Adapter Database Test', () => {

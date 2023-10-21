@@ -1,4 +1,4 @@
-import {jwtAdapter, JwtSignInterface} from "../../../src/adapter/jwt";
+import {jwtAdapter, JwtSignInterface} from "../../../src/adapter/jwt.adapter";
 import {appConfig} from "../../../src/config";
 import * as jwt from "jsonwebtoken"
 

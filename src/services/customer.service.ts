@@ -1,13 +1,13 @@
 import {CustomerAuthDto} from "../../proto_gen/customer-auth_pb";
-import {CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/customer-auth";
-import {ErrorHandler} from "../adapter/error";
+import {CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/customer-auth.model";
+import {ErrorHandler} from "../adapter/error.adapter";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {createBaseAttributes} from "../models";
-import {findCustomerByEmail, insertCustomerAuth, updateCustomerAuth} from "../repositories/customer.reposiitory";
+import {findCustomerByEmail, insertCustomerAuth, updateCustomerAuth} from "../repositories/customer.repository";
 import {getUnixFromDate} from "../utils/time";
 import {createHash} from "crypto";
-import {mailTransporter} from "../adapter/mail-transporter";
-import {emailVerificationTemplate} from "../templates/email-verification-template";
+import {mailTransporter} from "../adapter/mail-transporter.adapter";
+import {emailVerificationTemplate} from "../templates/email-verification.template";
 import {appConfig} from "../config";
 import {
     findAttemptSessionByDeviceIdAndPurpose,
@@ -15,7 +15,7 @@ import {
     updateAttemptSessionByDeviceIdAndPurpose
 } from "../repositories/session.repository";
 import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose} from "../models/attempt-session.model";
-import {jwtAdapter} from "../adapter/jwt";
+import {jwtAdapter} from "../adapter/jwt.adapter";
 import {logger} from "../logger";
 
 export const registerCustomerAuth = async (payload: CustomerAuthDto) => {

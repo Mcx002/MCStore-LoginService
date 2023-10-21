@@ -1,9 +1,8 @@
 import * as jwt from 'jsonwebtoken'
 import {SignOptions} from 'jsonwebtoken'
 import {appConfig} from "../config";
-import {Subject} from "../../proto_gen/auth_pb";
 import {isAnyStringInArrayB} from "../utils/array";
-import {ErrorHandler} from "./error";
+import {ErrorHandler} from "./error.adapter";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 
 export interface JwtSignInterface extends SignOptions {

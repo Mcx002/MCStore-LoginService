@@ -3,21 +3,21 @@ import {
     createCustomerAnonymousToken,
     createSellerAnonymousToken,
     validateAnonymousUser
-} from "../../../src/services/anonymous";
-import {AnonymousAttributes} from "../../../src/models/anonymous";
+} from "../../../src/services/anonymous.service";
+import {AnonymousAttributes} from "../../../src/models/anonymous.model";
 import {AnonymousLevel} from "../../../proto_gen/auth_pb";
 import {createHash} from 'crypto'
 
 describe('Service validateAnonymousUser Test', () => {
     test('Should throw anonymous is not found', async () => {
-        const anonymousRep = require('../../../src/repositories/anonymous')
+        const anonymousRep = require('../../../src/repositories/anonymous.repository')
         jest.spyOn(anonymousRep, 'findAnonymousByUsername').mockReturnValue(null)
 
         expect(async () => await validateAnonymousUser('test', 'test', AnonymousLevel.CUSTOMER)).rejects.toThrow('anonymous is not found')
     })
 
     test('Should throw invalid statement because of level', async () => {
-        const anonymousRep = require('../../../src/repositories/anonymous')
+        const anonymousRep = require('../../../src/repositories/anonymous.repository')
         const mockAnonymous: AnonymousAttributes = {
             createdAt: new Date(),
             id: 1,
@@ -34,7 +34,7 @@ describe('Service validateAnonymousUser Test', () => {
     })
 
     test('Should throw invalid statement because of password', async () => {
-        const anonymousRep = require('../../../src/repositories/anonymous')
+        const anonymousRep = require('../../../src/repositories/anonymous.repository')
 
         const hashedPassword = createHash('sha256').update('test1').digest('hex')
         const mockAnonymous: AnonymousAttributes = {
@@ -55,7 +55,7 @@ describe('Service validateAnonymousUser Test', () => {
 
 describe('Service createAnonymousToken test', () => {
     test('Should return anonymous customer token', async () => {
-        const anonymousRep = require('../../../src/repositories/anonymous')
+        const anonymousRep = require('../../../src/repositories/anonymous.repository')
 
         const hashedPassword = createHash('sha256').update('test').digest('hex')
         const mockAnonymous: AnonymousAttributes = {
@@ -74,7 +74,7 @@ describe('Service createAnonymousToken test', () => {
     })
 
     test('Should return anonymous seller token', async () => {
-        const anonymousRep = require('../../../src/repositories/anonymous')
+        const anonymousRep = require('../../../src/repositories/anonymous.repository')
 
         const hashedPassword = createHash('sha256').update('test').digest('hex')
         const mockAnonymous: AnonymousAttributes = {
@@ -93,7 +93,7 @@ describe('Service createAnonymousToken test', () => {
     })
 
     test('Should return anonymous admin token', async () => {
-        const anonymousRep = require('../../../src/repositories/anonymous')
+        const anonymousRep = require('../../../src/repositories/anonymous.repository')
 
         const hashedPassword = createHash('sha256').update('test').digest('hex')
         const mockAnonymous: AnonymousAttributes = {

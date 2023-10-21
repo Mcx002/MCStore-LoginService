@@ -1,9 +1,9 @@
 import {DatabaseModels} from "../../../src/models";
-import {findAnonymousByUsername} from "../../../src/repositories/anonymous";
-import {Anonymous} from "../../../src/models/anonymous";
+import {findAnonymousByUsername} from "../../../src/repositories/anonymous.repository";
+import {Anonymous} from "../../../src/models/anonymous.model";
 import {AnonymousLevel} from "../../../proto_gen/auth_pb";
 
-describe('Repository Anonymous Test', () => {
+describe('Repository AnonymousModel Test', () => {
     let dbModel: DatabaseModels | null = null
     beforeAll(async () => {
         dbModel = new DatabaseModels()

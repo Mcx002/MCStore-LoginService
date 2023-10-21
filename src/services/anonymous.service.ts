@@ -1,11 +1,11 @@
-import {findAnonymousByUsername} from "../repositories/anonymous";
+import {findAnonymousByUsername} from "../repositories/anonymous.repository";
 import {AnonymousLevel} from "../../proto_gen/auth_pb";
 import {createHash} from 'crypto'
-import {jwtAdapter} from "../adapter/jwt";
+import {jwtAdapter} from "../adapter/jwt.adapter";
 import {appConfig} from "../config";
-import {AnonymousAttributes} from "../models/anonymous";
+import {AnonymousAttributes} from "../models/anonymous.model";
 import {Status} from "@grpc/grpc-js/build/src/constants";
-import {ErrorHandler} from "../adapter/error";
+import {ErrorHandler} from "../adapter/error.adapter";
 
 export const validateAnonymousUser = async (username: string, password: string, level: AnonymousLevel): Promise<AnonymousAttributes> => {
     // find anonymous by username

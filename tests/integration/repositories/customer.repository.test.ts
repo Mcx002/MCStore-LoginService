@@ -1,12 +1,12 @@
-import {CustomerAuth, CustomerAuthCreationAttributes} from "../../../src/models/customer-auth";
+import {CustomerAuth, CustomerAuthCreationAttributes} from "../../../src/models/customer-auth.model";
 import {
     findCustomerByEmail,
     insertCustomerAuth,
     updateCustomerAuth
-} from "../../../src/repositories/customer.reposiitory";
+} from "../../../src/repositories/customer.repository";
 import {DatabaseModels} from "../../../src/models";
 
-describe('Repository CustomerAuth Test', () => {
+describe('Repository CustomerAuthModel Test', () => {
     let dbModel: DatabaseModels | null = null
     beforeAll(async () => {
         dbModel = new DatabaseModels()
@@ -18,7 +18,7 @@ describe('Repository CustomerAuth Test', () => {
         }
     })
 
-    test('Should return new CustomerAuth', async () => {
+    test('Should return new CustomerAuthModel', async () => {
         // prepare customer auth creation attributes
         const newCustomerAuthData: CustomerAuthCreationAttributes = {
             email: 'newEmail@test.com',
@@ -37,7 +37,7 @@ describe('Repository CustomerAuth Test', () => {
         await CustomerAuth.truncate()
     })
 
-    test('Should return CustomerAuth by Email', async () => {
+    test('Should return CustomerAuthModel by Email', async () => {
         // prepare customer auth creation attributes
         const newCustomerAuthData: CustomerAuthCreationAttributes = {
             email: 'newEmail@test.com',
