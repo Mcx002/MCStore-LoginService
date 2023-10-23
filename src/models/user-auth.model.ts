@@ -1,17 +1,19 @@
 import {DataTypes, Model, Optional, Sequelize} from "sequelize";
 import {BaseAttributes} from "./index";
+import {SubjectType} from "../../proto_gen/auth_pb";
 
-export interface CustomerAuthAttributes extends BaseAttributes {
+export interface UserAuthAttributes extends BaseAttributes {
     id: number
     userId: number
     email: string
     password: string
     verified: boolean
+    subjectType: SubjectType
 }
 
-export type CustomerAuthCreationAttributes = Optional<CustomerAuthAttributes, "id">
+export type UserAuthCreationAttributes = Optional<UserAuthAttributes, "id">
 
-export class CustomerAuth extends Model implements CustomerAuthAttributes {
+export class UserAuth extends Model implements UserAuthAttributes {
     createdAt!: Date
     email!: string
     password!: string
@@ -20,9 +22,10 @@ export class CustomerAuth extends Model implements CustomerAuthAttributes {
     userId!: number
     version!: number
     verified!: boolean
+    subjectType!: SubjectType
 
     static initModel(sequelize: Sequelize): void {
-        CustomerAuth.init({
+        UserAuth.init({
             id: {
                 type: DataTypes.BIGINT,
                 allowNull: false,
@@ -58,10 +61,15 @@ export class CustomerAuth extends Model implements CustomerAuthAttributes {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
                 defaultValue: false,
+            },
+            subjectType: {
+                type: DataTypes.SMALLINT,
+                allowNull: false,
+                defaultValue: SubjectType.CUSTOMER,
             }
         }, {
             sequelize,
-            tableName: 'CustomerAuth'
+            tableName: 'UserAuth'
         })
     }
 }

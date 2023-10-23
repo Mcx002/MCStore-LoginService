@@ -5,8 +5,9 @@ import {
     validateAnonymousUser
 } from "../../../src/services/anonymous.service";
 import {AnonymousAttributes} from "../../../src/models/anonymous.model";
-import {AnonymousLevel} from "../../../proto_gen/auth_pb";
 import {createHash} from 'crypto'
+import {AnonymousDto} from "../../../proto_gen/auth_pb";
+import AnonymousLevel = AnonymousDto.AnonymousLevel;
 
 describe('Service validateAnonymousUser Test', () => {
     test('Should throw anonymous is not found', async () => {

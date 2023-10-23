@@ -52,21 +52,3 @@ export const createAnonymousAdminTokenServer = async (call: ServerUnaryCall<Anon
     }
 }
 
-export const validateAnonymousTokenServer = async (call: ServerUnaryCall<ValidateTokenDto, Subject>, callback: sendUnaryData<Subject>) => {
-    try {
-        const req = call.request
-        const subject = jwtAdapter.verify(req.getToken(), req.getAudienceList())
-
-        const subjectDto = new Subject()
-        subjectDto.setXid(subject.xid)
-        subjectDto.setName(subject.name)
-        if (subject.photoProfile) {
-            subjectDto.setPhotoProfile(subject.photoProfile)
-        }
-
-        callback(null, subjectDto)
-    } catch (e) {
-        const err = e as ServerErrorResponse
-        callback(err, null)
-    }
-}

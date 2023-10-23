@@ -1,28 +1,29 @@
-import {CustomerAuthDto} from "../../../proto_gen/customer-auth_pb";
 import {
-    isCustomerEmailExists,
-    registerCustomerAuth,
-    sendCustomerEmailVerificationMail,
-    validateCustomerAccount, validateCustomerEmailVerification
-} from "../../../src/services/customer.service";
-import {CustomerAuthAttributes} from "../../../src/models/customer-auth.model";
+    isUserAuthEmailExists,
+    registerUserAuth,
+    sendEmailVerificationMail,
+    validateUserAccount, validateUserEmailVerification
+} from "../../../src/services/user-auth.service";
+import {UserAuthAttributes} from "../../../src/models/user-auth.model";
 import {createHash} from 'crypto';
 import {AttemptSessionAttributes, AttemptSessionPurpose} from "../../../src/models/attempt-session.model";
 import {appConfig} from "../../../src/config";
+import {UserAuthDto} from "../../../proto_gen/user-auth_pb";
+import {SubjectType} from "../../../proto_gen/auth_pb";
 
-describe('Service registerCustomerAuth Test', () => {
+describe('Service registerUserAuth Test', () => {
     test('Should throw Password required', async () => {
-        const payload = new CustomerAuthDto()
+        const payload = new UserAuthDto()
 
-        expect(async () => registerCustomerAuth(payload)).rejects.toThrow('Password required')
+        expect(async () => registerUserAuth(payload)).rejects.toThrow('Password required')
     })
 
-    test('Should return customer auth dto', async () => {
-        const payload = new CustomerAuthDto()
+    test('Should return user auth dto', async () => {
+        const payload = new UserAuthDto()
         payload.setPassword('pass')
 
-        // create customer auth attributes mock
-        const customerAuthMock: CustomerAuthAttributes = {
+        // create user auth attributes mock
+        const userAuthMock: UserAuthAttributes = {
             createdAt: new Date(),
             email: "email@test.com",
             id: 1,
@@ -31,83 +32,84 @@ describe('Service registerCustomerAuth Test', () => {
             userId: 1,
             version: 1,
             verified: false,
+            subjectType: SubjectType.CUSTOMER,
         }
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'insertCustomerAuth').mockReturnValue(customerAuthMock)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'insertUserAuth').mockReturnValue(userAuthMock)
 
-        const customerAuthDto = await registerCustomerAuth(payload)
-        expect(customerAuthDto.getEmail()).toBe(customerAuthMock.email)
+        const userAuthDto = await registerUserAuth(payload)
+        expect(userAuthDto.getEmail()).toBe(userAuthMock.email)
     })
 
     test('Should return email is exists true', async () => {
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue({})
 
-        const isEmailExists = await isCustomerEmailExists('test@email.com')
+        const isEmailExists = await isUserAuthEmailExists('test@email.com')
         expect(isEmailExists).toBe(true)
     })
 
     test('Should return email is exists false', async () => {
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue(null)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue(null)
 
-        const isEmailExists = await isCustomerEmailExists('test@email.com')
+        const isEmailExists = await isUserAuthEmailExists('test@email.com')
         expect(isEmailExists).toBe(false)
     })
 
 })
 
-describe('Service validateCustomerAccount Test', () => {
-    test('Should throw customer auth not found error', async () => {
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue(null)
+describe('Service validateUserAccount Test', () => {
+    test('Should throw user auth not found error', async () => {
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue(null)
 
-        expect(async () => validateCustomerAccount(new CustomerAuthDto())).rejects.toThrow("customer auth not found")
+        expect(async () => validateUserAccount(new UserAuthDto())).rejects.toThrow("user auth not found")
     })
 
     test('Should throw password required', async () => {
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue({})
 
-        expect(async () => validateCustomerAccount(new CustomerAuthDto())).rejects.toThrow("password required")
+        expect(async () => validateUserAccount(new UserAuthDto())).rejects.toThrow("password required")
     })
 
     test('Should throw auth invalid', async () => {
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({})
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue({})
 
-        const customerAuthDto = new CustomerAuthDto()
-        customerAuthDto.setPassword('test')
+        const userAuthDto = new UserAuthDto()
+        userAuthDto.setPassword('test')
 
-        expect(async () => validateCustomerAccount(customerAuthDto)).rejects.toThrow("auth invalid")
+        expect(async () => validateUserAccount(userAuthDto)).rejects.toThrow("auth invalid")
     })
 
     test('Should return true', async () => {
         const password = 'test'
         const hashedPassword = createHash('sha256').update(password).digest('hex')
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, 'findCustomerByEmail').mockReturnValue({
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue({
             password: hashedPassword
         })
 
-        const customerAuthDto = new CustomerAuthDto()
-        customerAuthDto.setPassword(password)
+        const userAuthDto = new UserAuthDto()
+        userAuthDto.setPassword(password)
 
-        const result = await validateCustomerAccount(customerAuthDto)
+        const result = await validateUserAccount(userAuthDto)
         expect(result).toBe(true)
     })
 })
 
-describe('Service sendCustomerEmailVerificationMail Test', () => {
+describe('Service sendUserEmailVerificationMail Test', () => {
     test('Should throw no email found', async () => {
         const deviceId = 'deviceIdTest'
         const email = 'email@test.com'
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue(null)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue(null)
 
-        expect(async () => sendCustomerEmailVerificationMail(deviceId, email)).rejects.toThrow('no email found')
+        expect(async () => sendEmailVerificationMail(deviceId, email)).rejects.toThrow('no email found')
     })
     test('Should aborted by throttling', async () => {
         const deviceId = 'deviceIdTest'
@@ -125,14 +127,14 @@ describe('Service sendCustomerEmailVerificationMail Test', () => {
 
         }
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({})
 
         const sessionRep = require('../../../src/repositories/session.repository')
         jest.spyOn(sessionRep, "findAttemptSessionByDeviceIdAndPurpose").mockReturnValue(null)
         jest.spyOn(sessionRep, "insertAttemptSession").mockReturnValue(mockAttemptSession)
 
-        expect(async () => sendCustomerEmailVerificationMail(deviceId, email)).rejects.toThrow("attempted 3 times, wait for a while")
+        expect(async () => sendEmailVerificationMail(deviceId, email)).rejects.toThrow("attempted 3 times, wait for a while")
     })
 
     test('Should return true', async () => {
@@ -150,8 +152,8 @@ describe('Service sendCustomerEmailVerificationMail Test', () => {
             version: 1
         }
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({})
 
         const sessionRep = require('../../../src/repositories/session.repository')
         jest.spyOn(sessionRep, "findAttemptSessionByDeviceIdAndPurpose").mockReturnValue(mockAttemptSession)
@@ -160,7 +162,7 @@ describe('Service sendCustomerEmailVerificationMail Test', () => {
         const mailTransporter = require('../../../src/adapter/mail-transporter.adapter')
         jest.spyOn(mailTransporter.mailTransporter, "sendMail").mockReturnValue(true)
 
-        const result = await sendCustomerEmailVerificationMail(deviceId, email)
+        const result = await sendEmailVerificationMail(deviceId, email)
         expect(result).toBe(true)
     })
 
@@ -181,8 +183,8 @@ describe('Service sendCustomerEmailVerificationMail Test', () => {
             version: 1
         }
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({})
 
         const sessionRep = require('../../../src/repositories/session.repository')
         jest.spyOn(sessionRep, "findAttemptSessionByDeviceIdAndPurpose").mockReturnValue(mockAttemptSession)
@@ -191,50 +193,50 @@ describe('Service sendCustomerEmailVerificationMail Test', () => {
         const mailTransporter = require('../../../src/adapter/mail-transporter.adapter')
         jest.spyOn(mailTransporter.mailTransporter, "sendMail").mockReturnValue(true)
 
-        const result = await sendCustomerEmailVerificationMail(deviceId, email)
+        const result = await sendEmailVerificationMail(deviceId, email)
         expect(result).toBe(true)
     })
 })
 
-describe('Service validateCustomerEmailVerification Test', () => {
+describe('Service validateUserEmailVerification Test', () => {
     test('Should throw email not found', () => {
         const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({})
 
-        expect(() => validateCustomerEmailVerification('')).rejects.toThrow('email not found')
+        expect(() => validateUserEmailVerification('')).rejects.toThrow('email not found')
     })
 
     test('Should throw deviceId not found', async () => {
         const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com'})
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue(null)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue(null)
 
-        expect(() => validateCustomerEmailVerification('')).rejects.toThrow('deviceId not found')
+        expect(() => validateUserEmailVerification('')).rejects.toThrow('deviceId not found')
     })
 
     test('Should throw no email found', async () => {
         const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com', deviceId: 'test'})
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue(null)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue(null)
 
-        expect(() => validateCustomerEmailVerification('')).rejects.toThrow('no email found')
+        expect(() => validateUserEmailVerification('')).rejects.toThrow('no email found')
     })
 
     test('Should return true', async () => {
         const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com', deviceId: 'test'})
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
-        jest.spyOn(customerRep, "updateCustomerAuth").mockReturnValue(1)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({})
+        jest.spyOn(userRep, "updateUserAuth").mockReturnValue(1)
         const attemptSessionRep = require('../../../src/repositories/session.repository')
         jest.spyOn(attemptSessionRep, "deleteAttemptSessionByDeviceIdAndPurpose").mockReturnValue(1)
 
-        const result = await validateCustomerEmailVerification('')
+        const result = await validateUserEmailVerification('')
         expect(result).toBe(true)
     })
 
@@ -242,13 +244,13 @@ describe('Service validateCustomerEmailVerification Test', () => {
         const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
         jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com', deviceId: 'test'})
 
-        const customerRep = require('../../../src/repositories/customer.repository')
-        jest.spyOn(customerRep, "findCustomerByEmail").mockReturnValue({})
-        jest.spyOn(customerRep, "updateCustomerAuth").mockReturnValue(0)
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({})
+        jest.spyOn(userRep, "updateUserAuth").mockReturnValue(0)
         const attemptSessionRep = require('../../../src/repositories/session.repository')
         jest.spyOn(attemptSessionRep, "deleteAttemptSessionByDeviceIdAndPurpose").mockReturnValue(1)
 
-        const result = await validateCustomerEmailVerification('')
+        const result = await validateUserEmailVerification('')
         expect(result).toBe(true)
     })
 })

@@ -1,11 +1,12 @@
 import {findAnonymousByUsername} from "../repositories/anonymous.repository";
-import {AnonymousLevel} from "../../proto_gen/auth_pb";
+import {AnonymousDto, SubjectType} from "../../proto_gen/auth_pb";
 import {createHash} from 'crypto'
 import {jwtAdapter} from "../adapter/jwt.adapter";
 import {appConfig} from "../config";
 import {AnonymousAttributes} from "../models/anonymous.model";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {ErrorHandler} from "../adapter/error.adapter";
+import AnonymousLevel = AnonymousDto.AnonymousLevel;
 
 export const validateAnonymousUser = async (username: string, password: string, level: AnonymousLevel): Promise<AnonymousAttributes> => {
     // find anonymous by username
@@ -36,6 +37,7 @@ export const createCustomerAnonymousToken = async (username: string, password: s
         payload: {
             xid: anonymous.xid,
             name: anonymous.username,
+            subjectType: SubjectType.ANON_CUSTOMER,
         },
         audience: ['AC'],
         subject: username,
@@ -50,6 +52,7 @@ export const createSellerAnonymousToken = async (username: string, password: str
         payload: {
             xid: anonymous.xid,
             name: anonymous.username,
+            subjectType: SubjectType.ANON_SELLER,
         },
         audience: ['AS'],
         subject: username,
@@ -64,6 +67,7 @@ export const createAdminAnonymousToken = async (username: string, password: stri
         payload: {
             xid: anonymous.xid,
             name: anonymous.username,
+            subjectType: SubjectType.ANON_ADMIN,
         },
         audience: ['AA'],
         subject: username,

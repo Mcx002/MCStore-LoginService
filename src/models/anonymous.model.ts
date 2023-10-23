@@ -1,5 +1,6 @@
 import {DataTypes, Model, Sequelize} from "sequelize";
-import {AnonymousLevel} from "../../proto_gen/auth_pb";
+import {AnonymousDto} from "../../proto_gen/auth_pb";
+import AnonymousLevel = AnonymousDto.AnonymousLevel;
 
 export interface AnonymousAttributes {
     id: number

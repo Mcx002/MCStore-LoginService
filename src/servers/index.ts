@@ -4,14 +4,14 @@ import {getHealthServer} from "./common.server";
 import {
     createAnonymousAdminTokenServer,
     createAnonymousCustomerTokenServer,
-    createAnonymousSellerTokenServer, validateAnonymousTokenServer
+    createAnonymousSellerTokenServer
 } from "./anonymous.server";
 import {
-    isCustomerEmailExistsServer,
-    registerCustomerAuthServer,
-    sendCustomerEmailVerificationMailServer,
-    validateCustomerAccountServer, validateCustomerEmailVerificationServer
-} from "./customer.server";
+    isUserEmailExistsServer,
+    registerUserAuthServer,
+    sendUserEmailVerificationMailServer,
+    validateUserAccountServer, validateUserEmailVerificationServer, validateTokenServer
+} from "./user-auth.server";
 
 export class AuthServer extends Server {
     initRoutes(): void {
@@ -23,14 +23,14 @@ export class AuthServer extends Server {
             createCustomerAnonymousToken: createAnonymousCustomerTokenServer,
             createSellerAnonymousToken: createAnonymousSellerTokenServer,
             createAdminAnonymousToken: createAnonymousAdminTokenServer,
-            validateAnonymousToken: validateAnonymousTokenServer,
 
-            // customer
-            registerCustomerAuth: registerCustomerAuthServer,
-            isCustomerEmailExists: isCustomerEmailExistsServer,
-            validateCustomerAccount: validateCustomerAccountServer,
-            sendCustomerEmailVerificationMail: sendCustomerEmailVerificationMailServer,
-            validateCustomerEmailVerification: validateCustomerEmailVerificationServer,
+            // user
+            registerUserAuth: registerUserAuthServer,
+            isUserEmailExists: isUserEmailExistsServer,
+            validateUserAccount: validateUserAccountServer,
+            sendUserEmailVerificationMail: sendUserEmailVerificationMailServer,
+            validateUserEmailVerification: validateUserEmailVerificationServer,
+            validateToken: validateTokenServer,
         })
     }
 }

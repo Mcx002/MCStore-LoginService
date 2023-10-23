@@ -1,9 +1,8 @@
-import {CustomerAuthDto} from "../../proto_gen/customer-auth_pb";
-import {CustomerAuthAttributes, CustomerAuthCreationAttributes} from "../models/customer-auth.model";
+import {UserAuthAttributes, UserAuthCreationAttributes} from "../models/user-auth.model";
 import {ErrorHandler} from "../adapter/error.adapter";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {createBaseAttributes} from "../models";
-import {findCustomerByEmail, insertCustomerAuth, updateCustomerAuth} from "../repositories/customer.repository";
+import {findUserAuthByEmail, insertUserAuth, updateUserAuth} from "../repositories/user-auth.repository";
 import {getUnixFromDate} from "../utils/time";
 import {createHash} from "crypto";
 import {mailTransporter} from "../adapter/mail-transporter.adapter";
@@ -18,8 +17,10 @@ import {
 import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose} from "../models/attempt-session.model";
 import {jwtAdapter} from "../adapter/jwt.adapter";
 import {logger} from "../logger";
+import {UserAuthDto} from "../../proto_gen/user-auth_pb";
+import {SubjectType} from "../../proto_gen/auth_pb";
 
-export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
+export const registerUserAuth = async (payload: UserAuthDto) => {
     const password = payload.getPassword()
     if (!password) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "Password required")
@@ -28,27 +29,28 @@ export const registerCustomerAuth = async (payload: CustomerAuthDto) => {
     const hashedPassword = createHash('sha256').update(password).digest('hex')
 
     // prepare customer auth creation attributes
-    const newCustomerAuthData: CustomerAuthCreationAttributes = {
+    const newUserAuthData: UserAuthCreationAttributes = {
         email: payload.getEmail(),
         password: hashedPassword,
         userId: payload.getUserId(),
         verified: false,
+        subjectType: SubjectType.CUSTOMER,
         ...createBaseAttributes(),
     }
 
-    const customerAuth = await insertCustomerAuth(newCustomerAuthData)
+    const userAuth = await insertUserAuth(newUserAuthData)
 
-    return composeCustomerAuthDto(customerAuth)
+    return composeUserAuthDto(userAuth)
 }
 
-export const isCustomerEmailExists = async (email: string) => {
-    const customerAuth = await findCustomerByEmail(email)
+export const isUserAuthEmailExists = async (email: string) => {
+    const userAuth = await findUserAuthByEmail(email)
 
-    return !!customerAuth
+    return !!userAuth
 }
 
-export const composeCustomerAuthDto = (payload: CustomerAuthAttributes): CustomerAuthDto => {
-    const result = new CustomerAuthDto()
+export const composeUserAuthDto = (payload: UserAuthAttributes): UserAuthDto => {
+    const result = new UserAuthDto()
     result.setEmail(payload.email)
     result.setCreatedAt(getUnixFromDate(payload.createdAt))
     result.setUpdatedAt(getUnixFromDate(payload.updatedAt))
@@ -58,10 +60,10 @@ export const composeCustomerAuthDto = (payload: CustomerAuthAttributes): Custome
     return result
 }
 
-export const validateCustomerAccount = async (payload: CustomerAuthDto): Promise<boolean> => {
-    const customerAuth = await findCustomerByEmail(payload.getEmail())
-    if (!customerAuth) {
-        throw new ErrorHandler(Status.INVALID_ARGUMENT, "customer auth not found")
+export const validateUserAccount = async (payload: UserAuthDto): Promise<boolean> => {
+    const userAuth = await findUserAuthByEmail(payload.getEmail())
+    if (!userAuth) {
+        throw new ErrorHandler(Status.INVALID_ARGUMENT, "user auth not found")
     }
 
     const password = payload.getPassword()
@@ -71,17 +73,17 @@ export const validateCustomerAccount = async (payload: CustomerAuthDto): Promise
 
     const hashedPassword = createHash('sha256').update(password).digest('hex')
 
-    if (customerAuth.password !== hashedPassword) {
+    if (userAuth.password !== hashedPassword) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "auth invalid")
     }
 
     return true
 }
 
-export const sendCustomerEmailVerificationMail = async (deviceId: string, email: string): Promise<boolean> => {
+export const sendEmailVerificationMail = async (deviceId: string, email: string): Promise<boolean> => {
     // check is email exists
-    const customerAuth = await findCustomerByEmail(email)
-    if (!customerAuth) {
+    const userAuth = await findUserAuthByEmail(email)
+    if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
     }
 
@@ -137,7 +139,7 @@ export const sendCustomerEmailVerificationMail = async (deviceId: string, email:
     return true
 }
 
-export const validateCustomerEmailVerification = async (token: string) => {
+export const validateUserEmailVerification = async (token: string) => {
     // retrieve token payload
     const tokenDecoded = jwtAdapter.verify(token, ['EmailVerification'])
     const email = tokenDecoded['email']
@@ -150,18 +152,18 @@ export const validateCustomerEmailVerification = async (token: string) => {
     }
 
     // check is email registered
-    const customerAuth = await findCustomerByEmail(email)
-    if (!customerAuth) {
+    const userAuth = await findUserAuthByEmail(email)
+    if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
     }
 
     // update email verification
-    const updatedValue: Partial<CustomerAuthAttributes> = {
-        version: customerAuth.version + 1,
+    const updatedValue: Partial<UserAuthAttributes> = {
+        version: userAuth.version + 1,
         updatedAt: new Date(),
         verified: true,
     }
-    const result = await updateCustomerAuth(customerAuth.id, customerAuth.version, updatedValue)
+    const result = await updateUserAuth(userAuth.id, userAuth.version, updatedValue)
     if (result === 0) {
         logger.info('no rows updated')
     }

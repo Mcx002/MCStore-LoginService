@@ -1,7 +1,7 @@
 import {Sequelize} from "sequelize";
 import {DatabaseAdapter, SequelizeAdapter} from "../adapter/database.adapter";
 import {Anonymous} from "./anonymous.model";
-import {CustomerAuth} from "./customer-auth.model";
+import {UserAuth} from "./user-auth.model";
 import {AttemptSession} from "./attempt-session.model";
 
 export class DatabaseModels {
@@ -16,7 +16,7 @@ export class DatabaseModels {
         const db = this.dbAdapter.getInstance()
 
         Anonymous.initModel(db)
-        CustomerAuth.initModel(db)
+        UserAuth.initModel(db)
         AttemptSession.initModel(db)
     }
 }

@@ -1,7 +1,8 @@
 import {DatabaseModels} from "../../../src/models";
 import {findAnonymousByUsername} from "../../../src/repositories/anonymous.repository";
 import {Anonymous} from "../../../src/models/anonymous.model";
-import {AnonymousLevel} from "../../../proto_gen/auth_pb";
+import {AnonymousDto} from "../../../proto_gen/auth_pb";
+import AnonymousLevel = AnonymousDto.AnonymousLevel;
 
 describe('Repository AnonymousModel Test', () => {
     let dbModel: DatabaseModels | null = null
@@ -24,7 +25,7 @@ describe('Repository AnonymousModel Test', () => {
         // preparing data on db
         const anonymous1Data = {
             username: "test",
-            password: "tset",
+            password: "test",
             createdAt: new Date(),
             updatedAt: new Date(),
             xid: "ve23",
