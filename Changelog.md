@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.10.3
+- fix(user-auth): Add error when user has been verified on send email verification
+
 # v0.10.2
 - fix(user-auth): Add requirement subject type to find email
 
