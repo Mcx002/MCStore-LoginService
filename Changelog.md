@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.10.2
+- fix(user-auth): Add requirement subject type to find email
+
 # v0.10.1
 - fix(user-auth): Fix login and register return functionfix(user-auth): Fix login and register return function
 
