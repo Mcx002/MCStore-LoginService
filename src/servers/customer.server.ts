@@ -3,7 +3,7 @@ import {CustomerAuthDto, SendEmailVerificationDto} from "../../proto_gen/custome
 import {
     isCustomerEmailExists,
     registerCustomerAuth,
-    sendEmailVerificationMail,
+    sendCustomerEmailVerificationMail,
     validateCustomerAccount, validateCustomerEmailVerification
 } from "../services/customer.service";
 import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
@@ -54,11 +54,11 @@ export const validateCustomerAccountServer = async (call: ServerUnaryCall<Custom
     }
 }
 
-export const sendEmailVerificationMailServer = async (call: ServerUnaryCall<SendEmailVerificationDto, BoolValue>, callback: sendUnaryData<BoolValue>) => {
+export const sendCustomerEmailVerificationMailServer = async (call: ServerUnaryCall<SendEmailVerificationDto, BoolValue>, callback: sendUnaryData<BoolValue>) => {
     try {
         const req = call.request
 
-        const result = await sendEmailVerificationMail(req.getDeviceid(), req.getEmail())
+        const result = await sendCustomerEmailVerificationMail(req.getDeviceid(), req.getEmail())
 
         const boolVal = new BoolValue()
         boolVal.setValue(result)

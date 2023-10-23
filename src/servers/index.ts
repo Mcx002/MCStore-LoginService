@@ -9,7 +9,7 @@ import {
 import {
     isCustomerEmailExistsServer,
     registerCustomerAuthServer,
-    sendEmailVerificationMailServer,
+    sendCustomerEmailVerificationMailServer,
     validateCustomerAccountServer, validateCustomerEmailVerificationServer
 } from "./customer.server";
 
@@ -29,7 +29,7 @@ export class AuthServer extends Server {
             registerCustomerAuth: registerCustomerAuthServer,
             isCustomerEmailExists: isCustomerEmailExistsServer,
             validateCustomerAccount: validateCustomerAccountServer,
-            sendEmailVerificationMail: sendEmailVerificationMailServer,
+            sendCustomerEmailVerificationMail: sendCustomerEmailVerificationMailServer,
             validateCustomerEmailVerification: validateCustomerEmailVerificationServer,
         })
     }
