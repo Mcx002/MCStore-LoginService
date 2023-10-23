@@ -19,7 +19,6 @@ import {jwtAdapter, JwtSignInterface} from "../adapter/jwt.adapter";
 import {logger} from "../logger";
 import {UserAuthDto} from "../../proto_gen/user-auth_pb";
 import {AuthResultDto, Subject, SubjectType} from "../../proto_gen/auth_pb";
-import {StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
 export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) => {
     let audience = [appConfig.customerAudience]
