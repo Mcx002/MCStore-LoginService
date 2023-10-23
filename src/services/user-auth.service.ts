@@ -114,6 +114,11 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string,
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
     }
 
+    // check has email been verified
+    if (userAuth.verified) {
+        throw new ErrorHandler(Status.ABORTED, "user has been verified")
+    }
+
     // check attemptSession by deviceId and email
     let attemptSession = await findAttemptSessionByDeviceIdAndPurpose(deviceId, AttemptSessionPurpose.EmailVerification)
     if (!attemptSession) {
@@ -183,6 +188,11 @@ export const validateUserEmailVerification = async (token: string) => {
     const userAuth = await findUserAuthByEmailAndSubjectType(email, tokenDecoded['subjectType'])
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
+    }
+
+    // check has email been verified
+    if (userAuth.verified) {
+        throw new ErrorHandler(Status.ABORTED, "user has been verified")
     }
 
     // update email verification

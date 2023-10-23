@@ -117,6 +117,17 @@ describe('Service sendUserEmailVerificationMail Test', () => {
 
         expect(async () => sendEmailVerificationMail(deviceId, email, SubjectType.CUSTOMER)).rejects.toThrow('no email found')
     })
+
+    test('Should throw user has been verified', async () => {
+        const deviceId = 'deviceIdTest'
+        const email = 'email@test.com'
+
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmailAndSubjectType").mockReturnValue({verified: true})
+
+        expect(async () => sendEmailVerificationMail(deviceId, email, SubjectType.CUSTOMER)).rejects.toThrow('user has been verified')
+    })
+
     test('Should aborted by throttling', async () => {
         const deviceId = 'deviceIdTest'
         const email = 'email@test.com'
@@ -230,6 +241,16 @@ describe('Service validateUserEmailVerification Test', () => {
         jest.spyOn(userRep, "findUserAuthByEmailAndSubjectType").mockReturnValue(null)
 
         expect(() => validateUserEmailVerification('')).rejects.toThrow('no email found')
+    })
+
+    test('Should throw no email found', async () => {
+        const {jwtAdapter} = require('../../../src/adapter/jwt.adapter')
+        jest.spyOn(jwtAdapter, "verify").mockReturnValue({email: 'test@email.com', deviceId: 'test'})
+
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmailAndSubjectType").mockReturnValue({verified: true})
+
+        expect(() => validateUserEmailVerification('')).rejects.toThrow('user has been verified')
     })
 
     test('Should return true', async () => {
