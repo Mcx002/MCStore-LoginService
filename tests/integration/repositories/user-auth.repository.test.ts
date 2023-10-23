@@ -1,9 +1,5 @@
 import {UserAuth, UserAuthCreationAttributes} from "../../../src/models/user-auth.model";
-import {
-    findUserAuthByEmail,
-    insertUserAuth,
-    updateUserAuth
-} from "../../../src/repositories/user-auth.repository";
+import {findUserAuthByEmail, insertUserAuth, updateUserAuth} from "../../../src/repositories/user-auth.repository";
 import {DatabaseModels} from "../../../src/models";
 import {SubjectType} from "../../../proto_gen/auth_pb";
 
@@ -37,6 +33,50 @@ describe('Repository UserAuthModel Test', () => {
         expect(userAuth.email).toBe(newUserAuthData.email)
 
         await UserAuth.truncate()
+    })
+
+    test('Should return new UserAuthModel with the same email diff subjectType', async () => {
+        // prepare customer auth creation attributes
+        const newUserAuthData: UserAuthCreationAttributes = {
+            email: 'newEmail@test.com',
+            password: 'test',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            version: 1,
+            userId: 1,
+            verified: false,
+            subjectType: SubjectType.CUSTOMER,
+        }
+
+        const userAuth = await insertUserAuth(newUserAuthData)
+
+        newUserAuthData.subjectType = SubjectType.SELLER
+        const userAuth2 = await insertUserAuth(newUserAuthData)
+
+        expect(userAuth.email).toBe(newUserAuthData.email)
+        expect(userAuth2.email).toBe(newUserAuthData.email)
+
+        await UserAuth.truncate()
+    })
+
+    test('Should throw validation error', async () => {
+        // prepare customer auth creation attributes
+        const newUserAuthData: UserAuthCreationAttributes = {
+            email: 'newEmail@test.com',
+            password: 'test',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            version: 1,
+            userId: 1,
+            verified: false,
+            subjectType: SubjectType.CUSTOMER,
+        }
+
+        await insertUserAuth(newUserAuthData)
+
+        await expect(async () => insertUserAuth(newUserAuthData)).rejects.toThrow('Validation error')
+
+        await UserAuth.destroy({ truncate: true })
     })
 
     test('Should return UserAuthModel by Email', async () => {

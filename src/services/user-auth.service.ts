@@ -18,7 +18,6 @@ import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose}
 import {jwtAdapter} from "../adapter/jwt.adapter";
 import {logger} from "../logger";
 import {UserAuthDto} from "../../proto_gen/user-auth_pb";
-import {SubjectType} from "../../proto_gen/auth_pb";
 
 export const registerUserAuth = async (payload: UserAuthDto) => {
     const password = payload.getPassword()
@@ -34,7 +33,7 @@ export const registerUserAuth = async (payload: UserAuthDto) => {
         password: hashedPassword,
         userId: payload.getUserId(),
         verified: false,
-        subjectType: SubjectType.CUSTOMER,
+        subjectType: payload.getSubjectType(),
         ...createBaseAttributes(),
     }
 

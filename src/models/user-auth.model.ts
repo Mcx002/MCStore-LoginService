@@ -35,7 +35,6 @@ export class UserAuth extends Model implements UserAuthAttributes {
             userId: {
                 type: DataTypes.BIGINT,
                 allowNull: false,
-                unique: true,
             },
             email: {
                 type: DataTypes.STRING,
