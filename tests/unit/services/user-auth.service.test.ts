@@ -1,4 +1,5 @@
 import {
+    createUserAuthToken,
     isUserAuthEmailExists,
     registerUserAuth,
     sendEmailVerificationMail,
@@ -9,18 +10,22 @@ import {createHash} from 'crypto';
 import {AttemptSessionAttributes, AttemptSessionPurpose} from "../../../src/models/attempt-session.model";
 import {appConfig} from "../../../src/config";
 import {UserAuthDto} from "../../../proto_gen/user-auth_pb";
-import {SubjectType} from "../../../proto_gen/auth_pb";
+import {Subject, SubjectType} from "../../../proto_gen/auth_pb";
+import {jwtAdapter} from "../../../src/adapter/jwt.adapter";
 
 describe('Service registerUserAuth Test', () => {
     test('Should throw Password required', async () => {
         const payload = new UserAuthDto()
+        const subject = new Subject()
 
-        expect(async () => registerUserAuth(payload)).rejects.toThrow('Password required')
+        expect(async () => registerUserAuth(payload, subject)).rejects.toThrow('Password required')
     })
 
     test('Should return user auth dto', async () => {
         const payload = new UserAuthDto()
         payload.setPassword('pass')
+
+        const subject = new Subject()
 
         // create user auth attributes mock
         const userAuthMock: UserAuthAttributes = {
@@ -38,8 +43,9 @@ describe('Service registerUserAuth Test', () => {
         const userRep = require('../../../src/repositories/user-auth.repository')
         jest.spyOn(userRep, 'insertUserAuth').mockReturnValue(userAuthMock)
 
-        const userAuthDto = await registerUserAuth(payload)
-        expect(userAuthDto.getEmail()).toBe(userAuthMock.email)
+        const userAuthDto = await registerUserAuth(payload, subject)
+
+        expect(userAuthDto.getToken() !== '').toBe(true)
     })
 
     test('Should return email is exists true', async () => {
@@ -65,14 +71,14 @@ describe('Service validateUserAccount Test', () => {
         const userRep = require('../../../src/repositories/user-auth.repository')
         jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue(null)
 
-        expect(async () => validateUserAccount(new UserAuthDto())).rejects.toThrow("user auth not found")
+        expect(async () => validateUserAccount(new UserAuthDto(), new Subject())).rejects.toThrow("user auth not found")
     })
 
     test('Should throw password required', async () => {
         const userRep = require('../../../src/repositories/user-auth.repository')
         jest.spyOn(userRep, 'findUserAuthByEmail').mockReturnValue({})
 
-        expect(async () => validateUserAccount(new UserAuthDto())).rejects.toThrow("password required")
+        expect(async () => validateUserAccount(new UserAuthDto(), new Subject())).rejects.toThrow("password required")
     })
 
     test('Should throw auth invalid', async () => {
@@ -82,7 +88,7 @@ describe('Service validateUserAccount Test', () => {
         const userAuthDto = new UserAuthDto()
         userAuthDto.setPassword('test')
 
-        expect(async () => validateUserAccount(userAuthDto)).rejects.toThrow("auth invalid")
+        expect(async () => validateUserAccount(userAuthDto, new Subject())).rejects.toThrow("auth invalid")
     })
 
     test('Should return true', async () => {
@@ -96,8 +102,8 @@ describe('Service validateUserAccount Test', () => {
         const userAuthDto = new UserAuthDto()
         userAuthDto.setPassword(password)
 
-        const result = await validateUserAccount(userAuthDto)
-        expect(result).toBe(true)
+        const result = await validateUserAccount(userAuthDto, new Subject())
+        expect(result.getToken() !== '').toBe(true)
     })
 })
 
@@ -252,5 +258,44 @@ describe('Service validateUserEmailVerification Test', () => {
 
         const result = await validateUserEmailVerification('')
         expect(result).toBe(true)
+    })
+})
+
+describe("Serivce createUserAuthToken Test", () => {
+    test("Should return token customer", () => {
+        const subjectType = SubjectType.CUSTOMER
+        const subject = new Subject()
+
+        const token = createUserAuthToken(subjectType, subject)
+        const aud = [appConfig.customerAudience]
+        const tokenDecoded = jwtAdapter.verify(token, aud)
+
+        expect(tokenDecoded.aud).toEqual(aud)
+        expect(tokenDecoded.aud).not.toEqual([appConfig.sellerAudience])
+    })
+
+    test("Should return token seller", () => {
+        const subjectType = SubjectType.SELLER
+        const subject = new Subject()
+
+        const token = createUserAuthToken(subjectType, subject)
+        const aud = [appConfig.sellerAudience]
+        const tokenDecoded = jwtAdapter.verify(token, aud)
+
+        expect(tokenDecoded.aud).toEqual(aud)
+        expect(tokenDecoded.aud).not.toEqual([appConfig.customerAudience])
+    })
+
+
+    test("Should return token admin", () => {
+        const subjectType = SubjectType.ADMIN
+        const subject = new Subject()
+
+        const token = createUserAuthToken(subjectType, subject)
+        const aud = [appConfig.adminAudience]
+        const tokenDecoded = jwtAdapter.verify(token, aud)
+
+        expect(tokenDecoded.aud).toEqual(aud)
+        expect(tokenDecoded.aud).not.toEqual([appConfig.customerAudience])
     })
 })

@@ -5,17 +5,28 @@ import {
     sendEmailVerificationMail,
     validateUserAccount, validateUserEmailVerification
 } from "../services/user-auth.service";
-import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
+import {BoolValue, StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
 import {TokenDto} from "../../proto_gen/common_pb";
-import {SendEmailVerificationDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
-import {Subject, SubjectType, ValidateTokenDto} from "../../proto_gen/auth_pb";
+import {RegisterDto, SendEmailVerificationDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
+import {AuthResultDto, Subject, SubjectType, ValidateTokenDto} from "../../proto_gen/auth_pb";
 import {jwtAdapter} from "../adapter/jwt.adapter";
+import {ErrorHandler} from "../adapter/error.adapter";
+import {Status} from "@grpc/grpc-js/build/src/constants";
 
-export const registerUserAuthServer = async (call: ServerUnaryCall<UserAuthDto, UserAuthDto>, callback: sendUnaryData<UserAuthDto>) => {
+export const registerUserAuthServer = async (call: ServerUnaryCall<RegisterDto, AuthResultDto>, callback: sendUnaryData<AuthResultDto>) => {
     try {
         const req = call.request
+        const userAuth = req.getUserAuth()
+        if (!userAuth) {
+            throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid Argument")
+        }
 
-        const result = await registerUserAuth(req)
+        const subject = req.getSubject()
+        if (!subject) {
+            throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid Argument")
+        }
+
+        const result = await registerUserAuth(userAuth, subject)
 
         callback(null, result)
     } catch (e) {
@@ -40,16 +51,23 @@ export const isUserEmailExistsServer = async (call: ServerUnaryCall<UserAuthDto,
     }
 }
 
-export const validateUserAccountServer = async (call: ServerUnaryCall<UserAuthDto, BoolValue>, callback: sendUnaryData<BoolValue>) => {
+export const validateUserAccountServer = async (call: ServerUnaryCall<RegisterDto, AuthResultDto>, callback: sendUnaryData<AuthResultDto>) => {
     try {
         const req = call.request
 
-        const result = await validateUserAccount(req)
+        const userAuth = req.getUserAuth()
+        if (!userAuth) {
+            throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid Argument")
+        }
 
-        const boolVal = new BoolValue()
-        boolVal.setValue(result)
+        const subject = req.getSubject()
+        if (!subject) {
+            throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid Argument")
+        }
 
-        callback(null, boolVal)
+        const result = await validateUserAccount(userAuth, subject)
+
+        callback(null, result)
     } catch (e) {
         const err = e as ServerErrorResponse
         callback(err, null)

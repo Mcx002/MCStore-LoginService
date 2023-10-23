@@ -15,11 +15,37 @@ import {
     updateAttemptSessionByDeviceIdAndPurpose
 } from "../repositories/session.repository";
 import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose} from "../models/attempt-session.model";
-import {jwtAdapter} from "../adapter/jwt.adapter";
+import {jwtAdapter, JwtSignInterface} from "../adapter/jwt.adapter";
 import {logger} from "../logger";
 import {UserAuthDto} from "../../proto_gen/user-auth_pb";
+import {AuthResultDto, Subject, SubjectType} from "../../proto_gen/auth_pb";
+import {StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
-export const registerUserAuth = async (payload: UserAuthDto) => {
+export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) => {
+    let audience = [appConfig.customerAudience]
+    let tokenExpiredTime = appConfig.customerTokenExpiredTime
+    switch (subjectType) {
+        case SubjectType.SELLER:
+            audience = [appConfig.sellerAudience]
+            tokenExpiredTime = appConfig.sellerTokenExpiredTime
+            break
+        case SubjectType.ADMIN:
+            audience = [appConfig.adminAudience]
+            tokenExpiredTime = appConfig.adminTokenExpiredTime
+            break
+        default:
+            break;
+    }
+
+    const tokenPayload: JwtSignInterface = {
+        payload: Subject.toObject(false, subject),
+        audience,
+        subject: subject.getXid(),
+    }
+    return jwtAdapter.sign(tokenPayload, tokenExpiredTime)
+}
+
+export const registerUserAuth = async (payload: UserAuthDto, subject: Subject): Promise<AuthResultDto> => {
     const password = payload.getPassword()
     if (!password) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "Password required")
@@ -28,38 +54,33 @@ export const registerUserAuth = async (payload: UserAuthDto) => {
     const hashedPassword = createHash('sha256').update(password).digest('hex')
 
     // prepare customer auth creation attributes
+    const subjectType = payload.getSubjectType()
     const newUserAuthData: UserAuthCreationAttributes = {
         email: payload.getEmail(),
         password: hashedPassword,
         userId: payload.getUserId(),
         verified: false,
-        subjectType: payload.getSubjectType(),
+        subjectType: subjectType,
         ...createBaseAttributes(),
     }
 
-    const userAuth = await insertUserAuth(newUserAuthData)
+    await insertUserAuth(newUserAuthData)
 
-    return composeUserAuthDto(userAuth)
+    const token = createUserAuthToken(subjectType, subject)
+
+    const authResult = new AuthResultDto()
+    authResult.setToken(token)
+
+    return authResult
 }
 
-export const isUserAuthEmailExists = async (email: string) => {
+export const isUserAuthEmailExists = async (email: string): Promise<boolean> => {
     const userAuth = await findUserAuthByEmail(email)
 
     return !!userAuth
 }
 
-export const composeUserAuthDto = (payload: UserAuthAttributes): UserAuthDto => {
-    const result = new UserAuthDto()
-    result.setEmail(payload.email)
-    result.setCreatedAt(getUnixFromDate(payload.createdAt))
-    result.setUpdatedAt(getUnixFromDate(payload.updatedAt))
-    result.setVersion(payload.version)
-    result.setUserId(payload.userId)
-
-    return result
-}
-
-export const validateUserAccount = async (payload: UserAuthDto): Promise<boolean> => {
+export const validateUserAccount = async (payload: UserAuthDto, subject: Subject): Promise<AuthResultDto> => {
     const userAuth = await findUserAuthByEmail(payload.getEmail())
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "user auth not found")
@@ -76,7 +97,12 @@ export const validateUserAccount = async (payload: UserAuthDto): Promise<boolean
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "auth invalid")
     }
 
-    return true
+    const token = createUserAuthToken(userAuth.subjectType, subject)
+
+    const authResult = new AuthResultDto()
+    authResult.setToken(token)
+
+    return authResult
 }
 
 export const sendEmailVerificationMail = async (deviceId: string, email: string): Promise<boolean> => {
@@ -126,7 +152,7 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string)
         },
         subject: email,
         audience: ['EmailVerification'],
-    },  60*15)
+    }, 60 * 15)
 
     // send email
     await mailTransporter.sendMail({
