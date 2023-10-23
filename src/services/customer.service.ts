@@ -10,6 +10,7 @@ import {mailTransporter} from "../adapter/mail-transporter.adapter";
 import {emailVerificationTemplate} from "../templates/email-verification.template";
 import {appConfig} from "../config";
 import {
+    deleteAttemptSessionByDeviceIdAndPurpose,
     findAttemptSessionByDeviceIdAndPurpose,
     insertAttemptSession,
     updateAttemptSessionByDeviceIdAndPurpose
@@ -77,7 +78,7 @@ export const validateCustomerAccount = async (payload: CustomerAuthDto): Promise
     return true
 }
 
-export const sendEmailVerificationMail = async (deviceId: string, email: string): Promise<boolean> => {
+export const sendCustomerEmailVerificationMail = async (deviceId: string, email: string): Promise<boolean> => {
     // check is email exists
     const customerAuth = await findCustomerByEmail(email)
     if (!customerAuth) {
@@ -103,6 +104,10 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string)
         throw new ErrorHandler(Status.ABORTED, "attempted 3 times, wait for a while")
     }
 
+    if (attemptSession.attempt >= 3) {
+        attemptSession.attempt = 0
+    }
+
     // update attemptSession
     const attemptSessionUpdate: Partial<AttemptSession> = {
         attempt: attemptSession.attempt + 1,
@@ -116,6 +121,7 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string)
     const token = jwtAdapter.sign({
         payload: {
             email,
+            deviceId,
         },
         subject: email,
         audience: ['EmailVerification'],
@@ -135,8 +141,12 @@ export const validateCustomerEmailVerification = async (token: string) => {
     // retrieve token payload
     const tokenDecoded = jwtAdapter.verify(token, ['EmailVerification'])
     const email = tokenDecoded['email']
+    const deviceId = tokenDecoded['deviceId']
     if (!email || email === '') {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "email not found")
+    }
+    if (!deviceId || email === '') {
+        throw new ErrorHandler(Status.INVALID_ARGUMENT, "deviceId not found")
     }
 
     // check is email registered
@@ -155,6 +165,8 @@ export const validateCustomerEmailVerification = async (token: string) => {
     if (result === 0) {
         logger.info('no rows updated')
     }
+
+    await deleteAttemptSessionByDeviceIdAndPurpose(deviceId, AttemptSessionPurpose.EmailVerification)
 
     return true
 }
