@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.9.2
+- fix(user-auth): Rename table and add subject type column 
+
 # v0.9.1
 - fix(customer-auth): Fix send customer email verification mail
 
