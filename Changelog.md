@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.10.1
+- fix(user-auth): Fix login and register return functionfix(user-auth): Fix login and register return function
+
 # v0.10.0
 - Add constraint email subject type unique
 
