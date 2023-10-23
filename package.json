@@ -50,6 +50,7 @@
       "<rootDir>/src/**/*.ts",
       "!<rootDir>/src/servers/**/*",
       "!<rootDir>/src/models/**/*"
-    ]
+    ],
+    "restoreMocks": true
   }
 }
