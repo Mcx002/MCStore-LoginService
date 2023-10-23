@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.9.1
+- fix(customer-auth): Fix send customer email verification mail
+
 # v0.9.0
 - feat(customer-auth): Add validate customer email verification
 
