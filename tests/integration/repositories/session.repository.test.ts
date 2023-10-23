@@ -1,5 +1,6 @@
 import {DatabaseModels} from "../../../src/models";
 import {
+    deleteAttemptSessionByDeviceIdAndPurpose,
     findAttemptSessionByDeviceIdAndPurpose,
     insertAttemptSession,
     updateAttemptSessionByDeviceIdAndPurpose
@@ -103,6 +104,6 @@ describe('Repository CustomerAuthModel Test', () => {
 
         expect(result).toBe(1)
 
-        await AttemptSession.destroy({ where: { id: attemptSessionCreationAttributes.id }})
+        await deleteAttemptSessionByDeviceIdAndPurpose(attemptSessionCreationAttributes.deviceId, attemptSessionCreationAttributes.purpose)
     })
 })

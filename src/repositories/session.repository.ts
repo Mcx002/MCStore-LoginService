@@ -29,3 +29,7 @@ export const updateAttemptSessionByDeviceIdAndPurpose = async (
     })
     return count
 }
+
+export const deleteAttemptSessionByDeviceIdAndPurpose = (deviceId: string, purpose: AttemptSessionPurpose) => {
+    return AttemptSession.destroy({where: { deviceId, purpose }})
+}
