@@ -1,5 +1,6 @@
 import {sendUnaryData, ServerErrorResponse, ServerUnaryCall} from "@grpc/grpc-js";
 import {
+    editUserPassword,
     isUserAuthEmailExists,
     registerUserAuth,
     sendEmailVerificationMail,
@@ -7,7 +8,7 @@ import {
 } from "../services/user-auth.service";
 import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 import {TokenDto} from "../../proto_gen/common_pb";
-import {RegisterDto, SendEmailVerificationDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
+import {EditPasswordDto, RegisterDto, SendEmailVerificationDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
 import {AuthResultDto, Subject, ValidateTokenDto} from "../../proto_gen/auth_pb";
 import {jwtAdapter} from "../adapter/jwt.adapter";
 import {ErrorHandler} from "../adapter/error.adapter";
@@ -121,6 +122,18 @@ export const validateTokenServer = async (call: ServerUnaryCall<ValidateTokenDto
         subjectDto.setSubjectType(subject.subjectType)
 
         callback(null, subjectDto)
+    } catch (e) {
+        const err = e as ServerErrorResponse
+        callback(err, null)
+    }
+}
+export const editUserPasswordServer = async (call: ServerUnaryCall<EditPasswordDto, BoolValue>, callback: sendUnaryData<BoolValue>) => {
+    try {
+        const req = call.request
+
+        const result = await editUserPassword(req)
+
+        callback(null, result)
     } catch (e) {
         const err = e as ServerErrorResponse
         callback(err, null)

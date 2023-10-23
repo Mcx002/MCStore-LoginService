@@ -10,7 +10,7 @@ import {
     isUserEmailExistsServer,
     registerUserAuthServer,
     sendUserEmailVerificationMailServer,
-    validateUserAccountServer, validateUserEmailVerificationServer, validateTokenServer
+    validateUserAccountServer, validateUserEmailVerificationServer, validateTokenServer, editUserPasswordServer
 } from "./user-auth.server";
 
 export class AuthServer extends Server {
@@ -31,6 +31,7 @@ export class AuthServer extends Server {
             sendUserEmailVerificationMail: sendUserEmailVerificationMailServer,
             validateUserEmailVerification: validateUserEmailVerificationServer,
             validateToken: validateTokenServer,
+            editUserPassword: editUserPasswordServer,
         })
     }
 }
