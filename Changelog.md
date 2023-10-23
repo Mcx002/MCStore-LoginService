@@ -5,12 +5,13 @@
 
 # v0.10.2
 - fix(user-auth): Add requirement subject type to find email
+- feat(user-auth): Add edit user password
 
 # v0.10.1
-- fix(user-auth): Fix login and register return functionfix(user-auth): Fix login and register return function
+- fix(user-auth): Fix login and register return function
 
 # v0.10.0
-- Add constraint email subject type unique
+- feat(user-auth): Add constraint email subject type unique
 
 # v0.9.2
 - fix(user-auth): Rename table and add subject type column 
