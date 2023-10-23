@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.10.0
+- Add constraint email subject type unique
+
 # v0.9.2
 - fix(user-auth): Rename table and add subject type column 
 
