@@ -1,12 +1,13 @@
 import {UserAuth, UserAuthAttributes, UserAuthCreationAttributes} from "../models/user-auth.model";
+import {SubjectType} from "../../proto_gen/auth_pb";
 
 export const insertUserAuth = async (payload: UserAuthCreationAttributes): Promise<UserAuthAttributes> => {
     return UserAuth.create(payload)
 }
 
-export const findUserAuthByEmail = async (email: string): Promise<UserAuthAttributes | null> => {
+export const findUserAuthByEmailAndSubjectType = async (email: string, subjectType: SubjectType): Promise<UserAuthAttributes | null> => {
     return UserAuth.findOne({
-        where: { email }
+        where: { email, subjectType }
     })
 }
 

@@ -1,5 +1,5 @@
 import {UserAuth, UserAuthCreationAttributes} from "../../../src/models/user-auth.model";
-import {findUserAuthByEmail, insertUserAuth, updateUserAuth} from "../../../src/repositories/user-auth.repository";
+import {findUserAuthByEmailAndSubjectType, insertUserAuth, updateUserAuth} from "../../../src/repositories/user-auth.repository";
 import {DatabaseModels} from "../../../src/models";
 import {SubjectType} from "../../../proto_gen/auth_pb";
 
@@ -93,7 +93,7 @@ describe('Repository UserAuthModel Test', () => {
         }
         await UserAuth.create(newUserAuthData)
 
-        const userAuth = await findUserAuthByEmail('newEmail@test.com')
+        const userAuth = await findUserAuthByEmailAndSubjectType(newUserAuthData.email, newUserAuthData.subjectType)
         expect(userAuth?.email).toBe(newUserAuthData.email)
 
         await UserAuth.truncate()
