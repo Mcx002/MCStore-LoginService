@@ -14,6 +14,17 @@ export const appConfig = {
 
     // Expired Times
     anonymousTokenExpiredTime: getEnvNumber("ANONYMOUS_TOKEN_EXPIRED_TIME", 86400),
+    customerTokenExpiredTime: getEnvNumber("CUSTOMER_TOKEN_EXPIRED_TIME"),
+    sellerTokenExpiredTime: getEnvNumber("SELLER_TOKEN_EXPIRED_TIME"),
+    adminTokenExpiredTime: getEnvNumber("ADMIN_TOKEN_EXPIRED_TIME"),
+
+    // Audience
+    customerAudience: getEnvString("CUSTOMER_AUDIENCE"),
+    sellerAudience: getEnvString("SELLER_AUDIENCE"),
+    adminAudience: getEnvString("ADMIN_AUDIENCE"),
+    anonCustomerAudience: getEnvString("ANON_CUSTOMER_AUDIENCE"),
+    anonSellerAudience: getEnvString("ANON_SELLER_AUDIENCE"),
+    anonAdminAudience: getEnvString("ANON_ADMIN_AUDIENCE"),
 
     // Database
     dbDialect: getEnvString("DB_DIALECT", "postgres"),
