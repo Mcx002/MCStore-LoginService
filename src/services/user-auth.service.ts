@@ -17,8 +17,9 @@ import {
 import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose} from "../models/attempt-session.model";
 import {jwtAdapter, JwtSignInterface} from "../adapter/jwt.adapter";
 import {logger} from "../logger";
-import {UserAuthDto} from "../../proto_gen/user-auth_pb";
+import {EditPasswordDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
 import {AuthResultDto, Subject, SubjectType} from "../../proto_gen/auth_pb";
+import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
 export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) => {
     let audience = [appConfig.customerAudience]
@@ -195,4 +196,37 @@ export const validateUserEmailVerification = async (token: string) => {
     await deleteAttemptSessionByDeviceIdAndPurpose(deviceId, AttemptSessionPurpose.EmailVerification)
 
     return true
+}
+
+export const editUserPassword = async (req: EditPasswordDto): Promise<BoolValue> => {
+    // Find user
+    const userAuth = await findUserAuthByEmail(req.getEmail())
+    if (!userAuth) {
+        throw new ErrorHandler(Status.INVALID_ARGUMENT, "email is not found")
+    }
+
+    // Pair old user password
+    const hashedOldPassword = createHash('sha256').update(req.getOldPassword()).digest('hex')
+    if (hashedOldPassword !== userAuth.password) {
+        throw new ErrorHandler(Status.INVALID_ARGUMENT, "invalid signature")
+    }
+
+    // Hash new user password
+    const hashedNewPassword = createHash('sha256').update(req.getNewPassword()).digest('hex')
+
+    // Prepare update data
+    const updatedValue: Partial<UserAuthAttributes> = {
+        password: hashedNewPassword,
+        version: userAuth.version + 1,
+        updatedAt: new Date(),
+    }
+
+    // Execute Update
+    const updatedRows = await updateUserAuth(userAuth.id, userAuth.version, updatedValue)
+    logger.info(`updated rows ${updatedRows}`)
+
+    const result = new BoolValue()
+    result.setValue(true)
+
+    return result
 }

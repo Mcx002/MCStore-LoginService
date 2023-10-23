@@ -1,5 +1,5 @@
 import {
-    createUserAuthToken,
+    createUserAuthToken, editUserPassword,
     isUserAuthEmailExists,
     registerUserAuth,
     sendEmailVerificationMail,
@@ -9,7 +9,7 @@ import {UserAuthAttributes} from "../../../src/models/user-auth.model";
 import {createHash} from 'crypto';
 import {AttemptSessionAttributes, AttemptSessionPurpose} from "../../../src/models/attempt-session.model";
 import {appConfig} from "../../../src/config";
-import {UserAuthDto} from "../../../proto_gen/user-auth_pb";
+import {EditPasswordDto, UserAuthDto} from "../../../proto_gen/user-auth_pb";
 import {Subject, SubjectType} from "../../../proto_gen/auth_pb";
 import {jwtAdapter} from "../../../src/adapter/jwt.adapter";
 
@@ -297,5 +297,47 @@ describe("Serivce createUserAuthToken Test", () => {
 
         expect(tokenDecoded.aud).toEqual(aud)
         expect(tokenDecoded.aud).not.toEqual([appConfig.customerAudience])
+    })
+})
+
+describe("Service editUserPassword Test", () => {
+    test("Should throw email not found", () => {
+        const payload = new EditPasswordDto()
+
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue(null)
+
+        expect(() => editUserPassword(payload)).rejects.toThrow("email is not found")
+    })
+    test("Should throw invalid signature", () => {
+        const payload = new EditPasswordDto()
+        payload.setOldPassword('t')
+
+        const pass = 'test'
+        const hashedPass = createHash('sha256').update(pass).digest('hex')
+
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({
+            password: hashedPass
+        })
+
+        expect(() => editUserPassword(payload)).rejects.toThrow("invalid signature")
+    })
+    test("Should return true", async () => {
+        const payload = new EditPasswordDto()
+        payload.setOldPassword('test')
+        payload.setNewPassword('test2')
+
+        const pass = 'test'
+        const hashedPass = createHash('sha256').update(pass).digest('hex')
+
+        const userRep = require('../../../src/repositories/user-auth.repository')
+        jest.spyOn(userRep, "findUserAuthByEmail").mockReturnValue({
+            password: hashedPass
+        })
+        jest.spyOn(userRep, "updateUserAuth").mockReturnValue(1)
+
+        const result = await editUserPassword(payload)
+        expect(result.getValue()).toBe(true)
     })
 })
