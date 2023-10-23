@@ -2,7 +2,7 @@ import {UserAuthAttributes, UserAuthCreationAttributes} from "../models/user-aut
 import {ErrorHandler} from "../adapter/error.adapter";
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {createBaseAttributes} from "../models";
-import {findUserAuthByEmail, insertUserAuth, updateUserAuth} from "../repositories/user-auth.repository";
+import {findUserAuthByEmailAndSubjectType, insertUserAuth, updateUserAuth} from "../repositories/user-auth.repository";
 import {getUnixFromDate} from "../utils/time";
 import {createHash} from "crypto";
 import {mailTransporter} from "../adapter/mail-transporter.adapter";
@@ -37,6 +37,7 @@ export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) 
             break;
     }
 
+    subject.setSubjectType(subjectType)
     const tokenPayload: JwtSignInterface = {
         payload: Subject.toObject(false, subject),
         audience,
@@ -66,6 +67,7 @@ export const registerUserAuth = async (payload: UserAuthDto, subject: Subject): 
 
     await insertUserAuth(newUserAuthData)
 
+    subject.setSubjectType(subjectType)
     const token = createUserAuthToken(subjectType, subject)
 
     const authResult = new AuthResultDto()
@@ -74,14 +76,14 @@ export const registerUserAuth = async (payload: UserAuthDto, subject: Subject): 
     return authResult
 }
 
-export const isUserAuthEmailExists = async (email: string): Promise<boolean> => {
-    const userAuth = await findUserAuthByEmail(email)
+export const isUserAuthEmailExists = async (email: string, subjectType: SubjectType): Promise<boolean> => {
+    const userAuth = await findUserAuthByEmailAndSubjectType(email, subjectType)
 
     return !!userAuth
 }
 
 export const validateUserAccount = async (payload: UserAuthDto, subject: Subject): Promise<AuthResultDto> => {
-    const userAuth = await findUserAuthByEmail(payload.getEmail())
+    const userAuth = await findUserAuthByEmailAndSubjectType(payload.getEmail(), payload.getSubjectType())
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "user auth not found")
     }
@@ -105,9 +107,9 @@ export const validateUserAccount = async (payload: UserAuthDto, subject: Subject
     return authResult
 }
 
-export const sendEmailVerificationMail = async (deviceId: string, email: string): Promise<boolean> => {
+export const sendEmailVerificationMail = async (deviceId: string, email: string, subjectType: SubjectType): Promise<boolean> => {
     // check is email exists
-    const userAuth = await findUserAuthByEmail(email)
+    const userAuth = await findUserAuthByEmailAndSubjectType(email, subjectType)
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
     }
@@ -149,6 +151,7 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string)
         payload: {
             email,
             deviceId,
+            subjectType,
         },
         subject: email,
         audience: ['EmailVerification'],
@@ -177,7 +180,7 @@ export const validateUserEmailVerification = async (token: string) => {
     }
 
     // check is email registered
-    const userAuth = await findUserAuthByEmail(email)
+    const userAuth = await findUserAuthByEmailAndSubjectType(email, tokenDecoded['subjectType'])
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "no email found")
     }
@@ -200,7 +203,7 @@ export const validateUserEmailVerification = async (token: string) => {
 
 export const editUserPassword = async (req: EditPasswordDto): Promise<BoolValue> => {
     // Find user
-    const userAuth = await findUserAuthByEmail(req.getEmail())
+    const userAuth = await findUserAuthByEmailAndSubjectType(req.getEmail(), req.getSubjectType())
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "email is not found")
     }

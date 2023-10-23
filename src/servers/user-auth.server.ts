@@ -40,7 +40,7 @@ export const isUserEmailExistsServer = async (call: ServerUnaryCall<UserAuthDto,
     try {
         const req = call.request
 
-        const result = await isUserAuthEmailExists(req.getEmail())
+        const result = await isUserAuthEmailExists(req.getEmail(), req.getSubjectType())
 
         const boolVal = new BoolValue()
         boolVal.setValue(result)
@@ -79,7 +79,7 @@ export const sendUserEmailVerificationMailServer = async (call: ServerUnaryCall<
     try {
         const req = call.request
 
-        const result = await sendEmailVerificationMail(req.getDeviceid(), req.getEmail())
+        const result = await sendEmailVerificationMail(req.getDeviceid(), req.getEmail(), req.getSubjectType())
 
         const boolVal = new BoolValue()
         boolVal.setValue(result)
