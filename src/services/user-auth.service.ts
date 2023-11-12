@@ -24,6 +24,8 @@ import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) => {
     let audience = [appConfig.customerAudience]
     let tokenExpiredTime = appConfig.customerTokenExpiredTime
+
+    // get subjectType aud and token expired time
     switch (subjectType) {
         case SubjectType.SELLER:
             audience = [appConfig.sellerAudience]
@@ -37,21 +39,26 @@ export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) 
             break;
     }
 
+    // set subject type
     subject.setSubjectType(subjectType)
     const tokenPayload: JwtSignInterface = {
         payload: Subject.toObject(false, subject),
         audience,
         subject: subject.getXid(),
     }
+
+    // sign token
     return jwtAdapter.sign(tokenPayload, tokenExpiredTime)
 }
 
 export const registerUserAuth = async (payload: UserAuthDto, subject: Subject): Promise<AuthResultDto> => {
+    // check if password is in the body request
     const password = payload.getPassword()
     if (!password) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "Password required")
     }
 
+    // hash password
     const hashedPassword = createHash('sha256').update(password).digest('hex')
 
     // prepare customer auth creation attributes
@@ -65,11 +72,16 @@ export const registerUserAuth = async (payload: UserAuthDto, subject: Subject): 
         ...createBaseAttributes(),
     }
 
+    // insert user auth
     await insertUserAuth(newUserAuthData)
 
+    // sett subject type
     subject.setSubjectType(subjectType)
+
+    // create token
     const token = createUserAuthToken(subjectType, subject)
 
+    // assign token
     const authResult = new AuthResultDto()
     authResult.setToken(token)
 
@@ -77,30 +89,37 @@ export const registerUserAuth = async (payload: UserAuthDto, subject: Subject): 
 }
 
 export const isUserAuthEmailExists = async (email: string, subjectType: SubjectType): Promise<boolean> => {
+    // check is email exists
     const userAuth = await findUserAuthByEmailAndSubjectType(email, subjectType)
 
     return !!userAuth
 }
 
 export const validateUserAccount = async (payload: UserAuthDto, subject: Subject): Promise<AuthResultDto> => {
+    // check is user found
     const userAuth = await findUserAuthByEmailAndSubjectType(payload.getEmail(), payload.getSubjectType())
     if (!userAuth) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "user auth not found")
     }
 
+    // check password is in the body request
     const password = payload.getPassword()
     if (!password) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "password required")
     }
 
+    // hash password
     const hashedPassword = createHash('sha256').update(password).digest('hex')
 
+    // pair password
     if (userAuth.password !== hashedPassword) {
         throw new ErrorHandler(Status.INVALID_ARGUMENT, "auth invalid")
     }
 
+    // create token
     const token = createUserAuthToken(userAuth.subjectType, subject)
 
+    // assign token
     const authResult = new AuthResultDto()
     authResult.setToken(token)
 
@@ -138,6 +157,7 @@ export const sendEmailVerificationMail = async (deviceId: string, email: string,
         throw new ErrorHandler(Status.ABORTED, "attempted 3 times, wait for a while")
     }
 
+    // check attempt
     if (attemptSession.attempt >= 3) {
         attemptSession.attempt = 0
     }
@@ -206,6 +226,7 @@ export const validateUserEmailVerification = async (token: string) => {
         logger.warn('no rows updated')
     }
 
+    // delete unused attempt session
     await deleteAttemptSessionByDeviceIdAndPurpose(deviceId, AttemptSessionPurpose.EmailVerification)
 
     return true
@@ -238,6 +259,7 @@ export const editUserPassword = async (req: EditPasswordDto): Promise<BoolValue>
     const updatedRows = await updateUserAuth(userAuth.id, userAuth.version, updatedValue)
     logger.info(`updated rows ${updatedRows}`)
 
+    // assign status success true
     const result = new BoolValue()
     result.setValue(true)
 

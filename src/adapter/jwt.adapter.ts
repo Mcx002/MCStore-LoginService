@@ -1,12 +1,12 @@
 import * as jwt from 'jsonwebtoken'
-import {SignOptions} from 'jsonwebtoken'
-import {appConfig} from "../config";
-import {isAnyStringInArrayB} from "../utils/array";
-import {ErrorHandler} from "./error.adapter";
-import {Status} from "@grpc/grpc-js/build/src/constants";
+import { SignOptions } from 'jsonwebtoken'
+import { appConfig } from "../config";
+import { isAnyStringInArrayB } from "../utils/array";
+import { ErrorHandler } from "./error.adapter";
+import { Status } from "@grpc/grpc-js/build/src/constants";
 
 export interface JwtSignInterface extends SignOptions {
-    payload: {[k: string]: unknown}
+    payload: { [k: string]: unknown }
 }
 
 class JwtAdapter {
@@ -40,23 +40,28 @@ class JwtAdapter {
     }
 
     validateAudience(payloadAudience: string | string[] | undefined, requiredAudiences: string[]) {
+        // validate audience
         let aud = payloadAudience ?? []
         if (!Array.isArray(aud)) {
             aud = [aud]
         }
 
+        // check if requested audience is match with permitted audience
         if (!isAnyStringInArrayB(requiredAudiences, aud)) {
             throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid audience")
         }
     }
 
     verify(token: string, audience: string[]): jwt.JwtPayload {
+        // verify token
         const data = jwt.verify(token, appConfig.jwtSecretKey) as jwt.JwtPayload
 
+        // verify issuer
         if (data.iss !== appConfig.jwtIssuer) {
             throw new ErrorHandler(Status.INVALID_ARGUMENT, "Invalid token")
         }
 
+        // validate aud
         this.validateAudience(data.aud, audience)
 
         return data
