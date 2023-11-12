@@ -1,5 +1,8 @@
 # Changelog
 
+# v0.10.4
+- fix(logger): Add logger error on server catch
+
 # v0.10.3
 - fix(user-auth): Add error when user has been verified on send email verification
 
