@@ -15,10 +15,11 @@ RUN pnpm install --frozen-lockfile
 
 # Bundle app source
 COPY . .
-RUN npm run build
 
 RUN rm .env
 RUN mv .env.production .env
+
+RUN npm run build
 
 EXPOSE 40000
 
