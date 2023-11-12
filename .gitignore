@@ -4,4 +4,10 @@ node_modules
 coverage
 
 .env
+.env.production
 error.log
+
+build/
+.vscode
+error.log
+info.log
