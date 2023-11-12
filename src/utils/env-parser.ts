@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import * as dotenv from 'dotenv'
 import {Status} from "@grpc/grpc-js/build/src/constants";
 import {ErrorHandler} from "../adapter/error.adapter";
 

@@ -1,4 +1,4 @@
-import {sendUnaryData, ServerErrorResponse, ServerUnaryCall} from "@grpc/grpc-js";
+import { sendUnaryData, ServerErrorResponse, ServerUnaryCall } from "@grpc/grpc-js";
 import {
     editUserPassword,
     isUserAuthEmailExists,
@@ -6,13 +6,14 @@ import {
     sendEmailVerificationMail,
     validateUserAccount, validateUserEmailVerification
 } from "../services/user-auth.service";
-import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
-import {TokenDto} from "../../proto_gen/common_pb";
-import {EditPasswordDto, RegisterDto, SendEmailVerificationDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
-import {AuthResultDto, Subject, ValidateTokenDto} from "../../proto_gen/auth_pb";
-import {jwtAdapter} from "../adapter/jwt.adapter";
-import {ErrorHandler} from "../adapter/error.adapter";
-import {Status} from "@grpc/grpc-js/build/src/constants";
+import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
+import { TokenDto } from "../../proto_gen/common_pb";
+import { EditPasswordDto, RegisterDto, SendEmailVerificationDto, UserAuthDto } from "../../proto_gen/user-auth_pb";
+import { AuthResultDto, Subject, ValidateTokenDto } from "../../proto_gen/auth_pb";
+import { jwtAdapter } from "../adapter/jwt.adapter";
+import { ErrorHandler } from "../adapter/error.adapter";
+import { Status } from "@grpc/grpc-js/build/src/constants";
+import { logger } from "../logger";
 
 export const registerUserAuthServer = async (call: ServerUnaryCall<RegisterDto, AuthResultDto>, callback: sendUnaryData<AuthResultDto>) => {
     try {
@@ -32,6 +33,7 @@ export const registerUserAuthServer = async (call: ServerUnaryCall<RegisterDto, 
         callback(null, result)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -48,6 +50,7 @@ export const isUserEmailExistsServer = async (call: ServerUnaryCall<UserAuthDto,
         callback(null, boolVal)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -71,6 +74,7 @@ export const validateUserAccountServer = async (call: ServerUnaryCall<RegisterDt
         callback(null, result)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -87,6 +91,7 @@ export const sendUserEmailVerificationMailServer = async (call: ServerUnaryCall<
         callback(null, boolVal)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -104,6 +109,7 @@ export const validateUserEmailVerificationServer = async (call: ServerUnaryCall<
         callback(null, boolVal)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -124,6 +130,7 @@ export const validateTokenServer = async (call: ServerUnaryCall<ValidateTokenDto
         callback(null, subjectDto)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -136,6 +143,7 @@ export const editUserPasswordServer = async (call: ServerUnaryCall<EditPasswordD
         callback(null, result)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }

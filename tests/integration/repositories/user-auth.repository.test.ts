@@ -1,7 +1,7 @@
-import {UserAuth, UserAuthCreationAttributes} from "../../../src/models/user-auth.model";
-import {findUserAuthByEmailAndSubjectType, insertUserAuth, updateUserAuth} from "../../../src/repositories/user-auth.repository";
-import {DatabaseModels} from "../../../src/models";
-import {SubjectType} from "../../../proto_gen/auth_pb";
+import { UserAuth, UserAuthCreationAttributes } from "../../../src/models/user-auth.model";
+import { findUserAuthByEmailAndSubjectType, insertUserAuth, updateUserAuth } from "../../../src/repositories/user-auth.repository";
+import { DatabaseModels } from "../../../src/models";
+import { SubjectType } from "../../../proto_gen/auth_pb";
 
 describe('Repository UserAuthModel Test', () => {
     let dbModel: DatabaseModels | null = null
@@ -23,12 +23,12 @@ describe('Repository UserAuthModel Test', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
             version: 1,
-            userId: 1,
+            userId: 'uuid',
             verified: false,
             subjectType: SubjectType.CUSTOMER,
         }
 
-       const userAuth = await insertUserAuth(newUserAuthData)
+        const userAuth = await insertUserAuth(newUserAuthData)
 
         expect(userAuth.email).toBe(newUserAuthData.email)
 
@@ -43,7 +43,7 @@ describe('Repository UserAuthModel Test', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
             version: 1,
-            userId: 1,
+            userId: 'uuid',
             verified: false,
             subjectType: SubjectType.CUSTOMER,
         }
@@ -67,7 +67,7 @@ describe('Repository UserAuthModel Test', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
             version: 1,
-            userId: 1,
+            userId: 'uuid',
             verified: false,
             subjectType: SubjectType.CUSTOMER,
         }
@@ -87,7 +87,7 @@ describe('Repository UserAuthModel Test', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
             version: 1,
-            userId: 1,
+            userId: 'uuid',
             verified: false,
             subjectType: SubjectType.CUSTOMER,
         }
@@ -107,7 +107,7 @@ describe('Repository UserAuthModel Test', () => {
             createdAt: new Date(),
             updatedAt: new Date(),
             version: 1,
-            userId: 1,
+            userId: 'uuid',
             verified: false,
             subjectType: SubjectType.CUSTOMER,
         }

@@ -1,11 +1,11 @@
-import {sendUnaryData, ServerErrorResponse, ServerUnaryCall} from "@grpc/grpc-js";
+import { sendUnaryData, ServerErrorResponse, ServerUnaryCall } from "@grpc/grpc-js";
 import {
     createAdminAnonymousToken,
     createCustomerAnonymousToken,
     createSellerAnonymousToken,
 } from "../services/anonymous.service";
-import {AnonymousDto, AuthResultDto, Subject, ValidateTokenDto} from "../../proto_gen/auth_pb";
-import {jwtAdapter} from "../adapter/jwt.adapter";
+import { AnonymousDto, AuthResultDto } from "../../proto_gen/auth_pb";
+import { logger } from "../logger";
 
 export const createAnonymousCustomerTokenServer = async (call: ServerUnaryCall<AnonymousDto, AuthResultDto>, callback: sendUnaryData<AuthResultDto>) => {
     try {
@@ -18,6 +18,7 @@ export const createAnonymousCustomerTokenServer = async (call: ServerUnaryCall<A
         callback(null, authResultDto)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -33,6 +34,7 @@ export const createAnonymousSellerTokenServer = async (call: ServerUnaryCall<Ano
         callback(null, authResultDto)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }
@@ -48,6 +50,7 @@ export const createAnonymousAdminTokenServer = async (call: ServerUnaryCall<Anon
         callback(null, authResultDto)
     } catch (e) {
         const err = e as ServerErrorResponse
+        logger.error(JSON.stringify(err))
         callback(err, null)
     }
 }

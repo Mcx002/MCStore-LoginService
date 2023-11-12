@@ -1,8 +1,8 @@
-import {Dialect, Sequelize} from "sequelize";
-import {appConfig} from "../config";
-import {Status} from "@grpc/grpc-js/build/src/constants";
-import {ErrorHandler} from "./error.adapter";
-import {logger} from "../logger";
+import { Dialect, Sequelize } from "sequelize";
+import { appConfig } from "../config";
+import { Status } from "@grpc/grpc-js/build/src/constants";
+import { ErrorHandler } from "./error.adapter";
+import { logger } from "../logger";
 
 export interface DatabaseAdapter<Instance> {
     connect(): Promise<boolean>;
@@ -27,7 +27,7 @@ export class SequelizeAdapter implements DatabaseAdapter<Sequelize> {
 
             return true
         } catch (e) {
-            logger.error(e)
+            logger.error(JSON.stringify(e))
             throw new ErrorHandler(Status.INTERNAL, 'Unable to connect to the database')
         }
     }

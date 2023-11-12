@@ -1,9 +1,10 @@
-import {getEnvBoolean, getEnvNumber, getEnvString, loadEnvFile} from "./utils/env-parser";
+import { getEnvBoolean, getEnvNumber, getEnvString, loadEnvFile } from "./utils/env-parser";
 
 loadEnvFile()
 
 export const appConfig = {
     // Server Configuration
+    host: getEnvString("HOST", "localhost"),
     port: getEnvNumber("PORT", 40000),
     serviceName: getEnvString("SERVICE_NAME", "AuthService"),
     serviceVersion: getEnvString("SERVICE_VERSION", "v0.0.1"),

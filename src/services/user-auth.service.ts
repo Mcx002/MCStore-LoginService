@@ -1,25 +1,25 @@
-import {UserAuthAttributes, UserAuthCreationAttributes} from "../models/user-auth.model";
-import {ErrorHandler} from "../adapter/error.adapter";
-import {Status} from "@grpc/grpc-js/build/src/constants";
-import {createBaseAttributes} from "../models";
-import {findUserAuthByEmailAndSubjectType, insertUserAuth, updateUserAuth} from "../repositories/user-auth.repository";
-import {getUnixFromDate} from "../utils/time";
-import {createHash} from "crypto";
-import {mailTransporter} from "../adapter/mail-transporter.adapter";
-import {emailVerificationTemplate} from "../templates/email-verification.template";
-import {appConfig} from "../config";
+import { UserAuthAttributes, UserAuthCreationAttributes } from "../models/user-auth.model";
+import { ErrorHandler } from "../adapter/error.adapter";
+import { Status } from "@grpc/grpc-js/build/src/constants";
+import { createBaseAttributes } from "../models";
+import { findUserAuthByEmailAndSubjectType, insertUserAuth, updateUserAuth } from "../repositories/user-auth.repository";
+import { getUnixFromDate } from "../utils/time";
+import { createHash } from "crypto";
+import { mailTransporter } from "../adapter/mail-transporter.adapter";
+import { emailVerificationTemplate } from "../templates/email-verification.template";
+import { appConfig } from "../config";
 import {
     deleteAttemptSessionByDeviceIdAndPurpose,
     findAttemptSessionByDeviceIdAndPurpose,
     insertAttemptSession,
     updateAttemptSessionByDeviceIdAndPurpose
 } from "../repositories/session.repository";
-import {AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose} from "../models/attempt-session.model";
-import {jwtAdapter, JwtSignInterface} from "../adapter/jwt.adapter";
-import {logger} from "../logger";
-import {EditPasswordDto, UserAuthDto} from "../../proto_gen/user-auth_pb";
-import {AuthResultDto, Subject, SubjectType} from "../../proto_gen/auth_pb";
-import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
+import { AttemptSession, AttemptSessionCreationAttributes, AttemptSessionPurpose } from "../models/attempt-session.model";
+import { jwtAdapter, JwtSignInterface } from "../adapter/jwt.adapter";
+import { logger } from "../logger";
+import { EditPasswordDto, UserAuthDto } from "../../proto_gen/user-auth_pb";
+import { AuthResultDto, Subject, SubjectType } from "../../proto_gen/auth_pb";
+import { BoolValue } from "google-protobuf/google/protobuf/wrappers_pb";
 
 export const createUserAuthToken = (subjectType: SubjectType, subject: Subject) => {
     let audience = [appConfig.customerAudience]
@@ -203,7 +203,7 @@ export const validateUserEmailVerification = async (token: string) => {
     }
     const result = await updateUserAuth(userAuth.id, userAuth.version, updatedValue)
     if (result === 0) {
-        logger.info('no rows updated')
+        logger.warn('no rows updated')
     }
 
     await deleteAttemptSessionByDeviceIdAndPurpose(deviceId, AttemptSessionPurpose.EmailVerification)
