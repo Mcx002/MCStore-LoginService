@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "ts-node index.ts",
+    "server": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node build",
     "db-init": "npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
     "db-seed": "npx sequelize-cli db:seed:all",
     "db-seed-down": "npx sequelize-cli db:seed:undo:all",
@@ -48,6 +50,7 @@
     "preset": "ts-jest",
     "collectCoverageFrom": [
       "<rootDir>/src/**/*.ts",
+      "!<rootDir>/src/index.ts",
       "!<rootDir>/src/servers/**/*",
       "!<rootDir>/src/models/**/*"
     ],
