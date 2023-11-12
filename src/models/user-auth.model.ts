@@ -1,10 +1,10 @@
-import {DataTypes, Model, Optional, Sequelize} from "sequelize";
-import {BaseAttributes} from "./index";
-import {SubjectType} from "../../proto_gen/auth_pb";
+import { DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { BaseAttributes } from "./index";
+import { SubjectType } from "../../proto_gen/auth_pb";
 
 export interface UserAuthAttributes extends BaseAttributes {
     id: number
-    userId: number
+    userId: string
     email: string
     password: string
     verified: boolean
@@ -19,7 +19,7 @@ export class UserAuth extends Model implements UserAuthAttributes {
     password!: string
     id!: number
     updatedAt!: Date
-    userId!: number
+    userId!: string
     version!: number
     verified!: boolean
     subjectType!: SubjectType
@@ -33,7 +33,7 @@ export class UserAuth extends Model implements UserAuthAttributes {
                 autoIncrement: true,
             },
             userId: {
-                type: DataTypes.BIGINT,
+                type: DataTypes.STRING(36),
                 allowNull: false,
             },
             email: {
